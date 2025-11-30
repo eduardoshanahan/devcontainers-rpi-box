@@ -1,0 +1,72 @@
+#!/bin/bash
+
+HOSTNAME=$(hostname)
+DATE=$(date)
+
+# Uptime and load
+UPTIME_HUMAN=$(uptime -p 2>/dev/null || uptime)
+LOAD_AVG=$(cut -d ' ' -f1-3 /proc/loadavg)
+
+# Disk usage
+DISK_ROOT=$(df -h / | tail -1)
+DISK_ALL=$(df -h --output=source,fstype,size,used,avail,pcent,target | sed -n '1p;/^\/dev/p')
+
+# Memory
+MEMORY=$(free -h)
+
+# CPU temperature (Raspberry Pi and most ARM boards)
+if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+  TEMP=$(awk '{printf "%.1f°C\n", $1/1000}' /sys/class/thermal/thermal_zone0/temp)
+else
+  TEMP="N/A"
+fi
+
+# Network info
+NETWORK=$(ip -4 addr show eth0 2>/dev/null || echo "eth0 not found")
+
+# Top CPU processes
+TOP_PROCS=$(ps aux --sort=-%cpu | head -n 6)
+
+# Docker containers
+DOCKER_SUMMARY=$(docker ps --format 'table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}' 2>/dev/null || echo "Docker not installed or not running")
+
+# Failed SSH logins in last 24h
+FAILED_SSH=$(journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -c "Failed password" 2>/dev/null || echo "N/A")
+
+REPORT=$(cat <<EOF
+Daily Report for $HOSTNAME
+Date: $DATE
+
+== Uptime ==
+$UPTIME_HUMAN
+
+== Load Average (1m 5m 15m) ==
+$LOAD_AVG
+
+== CPU Temperature ==
+$TEMP
+
+== Disk Usage (/) ==
+$DISK_ROOT
+
+== All Disk Mounts ==
+$DISK_ALL
+
+== Memory ==
+$MEMORY
+
+== Network (eth0) ==
+$NETWORK
+
+== Failed SSH logins in last 24h ==
+$FAILED_SSH
+
+== Top CPU Processes ==
+$TOP_PROCS
+
+== Docker Containers ==
+$DOCKER_SUMMARY
+EOF
+)
+
+echo "$REPORT" | mail -s "Daily Report: $HOSTNAME" "{{ daily_report_email }}"

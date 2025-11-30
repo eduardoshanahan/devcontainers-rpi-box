@@ -1,0 +1,30 @@
+---
+
+- name: Ensure APT cache is up to date
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: "{{ apt_cache_valid_time | default(3600) }}"
+
+- name: Set timezone
+  ansible.builtin.command: timedatectl set-timezone {{ timezone }}
+  changed_when: false
+  when: timezone is defined
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name:
+      - htop
+      - vim
+      - git
+      - curl
+      - tmux
+      - net-tools
+      - python3-pip
+    state: present
+
+- name: Ensure locales package is present
+  ansible.builtin.apt:
+    name: locales
+    state: present
+
+# (Add any user dotfiles, sshd hardening, etc. later as separate tasks/role)

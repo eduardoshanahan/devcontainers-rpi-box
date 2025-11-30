@@ -1,0 +1,50 @@
+---
+# Default list of common tools to install on all Raspberry Pi nodes.
+# Extend this over time as your homelab grows.
+
+common_tools_packages:
+  # System / monitoring basics
+  - htop
+  - iotop
+  - iftop
+  - nload
+
+  # Networking & diagnostics
+  - dnsutils # dig, nslookup, etc.
+  - nmap
+  - tcpdump
+
+  # Legacy but handy
+  - net-tools # ifconfig, netstat, etc.
+
+  # Hardware / USB
+  - usbutils # lsusb
+
+# In the future you can add, for example:
+#  - zsh
+#  - fail2ban
+#  - jq
+#  - ripgrep
+#  - tree
+
+common_tools_privileged_user: "{{ ansible_user }}"
+
+common_tools_privileged_commands:
+  - /usr/sbin/iotop
+  - /usr/sbin/tcpdump
+  - /usr/sbin/iftop
+
+# Aliases to be added to the user's shell environment
+common_tools_aliases:
+  iotop: "sudo /usr/sbin/iotop"
+  top: "htop"
+  ls: "ls --color=auto"
+  iftop: "sudo /usr/sbin/iftop"
+
+  # Whether to install and enable Prometheus node_exporter
+common_tools_node_exporter_install: true
+
+# Address node_exporter will listen on
+# 0.0.0.0:9100 = accessible from your LAN (good for future Prometheus box)
+# 127.0.0.1:9100 = only local machine
+common_tools_node_exporter_listen_address: "0.0.0.0:9100"

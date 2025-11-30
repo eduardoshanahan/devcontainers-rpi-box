@@ -1,0 +1,6 @@
+[Unit]
+Description=Daily system status report
+
+[Service]
+Type=oneshot
+ExecStart={{ daily_report_script_path }}

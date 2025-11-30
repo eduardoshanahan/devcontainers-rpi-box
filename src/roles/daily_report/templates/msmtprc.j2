@@ -1,0 +1,18 @@
+# msmtp configuration for {{ inventory_hostname }}
+
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        /home/{{ daily_report_user }}/.msmtp.log
+aliases        /etc/msmtp.aliases
+
+# Zoho SMTP account
+account        zoho
+host           smtp.zoho.eu
+port           587
+from           {{ daily_report_sender }}
+user           {{ daily_report_smtp_user }}
+password       {{ daily_report_smtp_password }}
+
+account default : zoho

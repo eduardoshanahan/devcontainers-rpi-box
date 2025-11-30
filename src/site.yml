@@ -1,0 +1,15 @@
+- name: Bootstrap and maintain Raspberry Pi
+  hosts: rpi
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - group_vars/all/local-secrets.yml
+
+  roles:
+    - role: common
+    - role: common_tools
+    - role: daily_report
+    - role: unattended_upgrades
+    - role: docker
+    - role: system_update

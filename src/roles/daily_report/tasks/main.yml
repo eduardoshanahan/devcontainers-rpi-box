@@ -1,0 +1,67 @@
+- name: Install msmtp and mailx
+  ansible.builtin.apt:
+    name:
+      - msmtp-mta
+      - bsd-mailx
+    state: present
+    update_cache: true
+  tags: [daily_report]
+
+- name: Deploy msmtp configuration
+  ansible.builtin.template:
+    src: msmtprc.j2
+    dest: /etc/msmtprc
+    owner: root
+    group: root
+    mode: "0600"
+  tags: [daily_report]
+
+- name: Deploy per-user msmtp configuration
+  ansible.builtin.template:
+    src: msmtprc.j2
+    dest: "/home/{{ daily_report_user }}/.msmtprc"
+    owner: "{{ daily_report_user }}"
+    group: "{{ daily_report_user }}"
+    mode: "0600"
+  tags: [daily_report]
+
+- name: Deploy daily report script
+  ansible.builtin.template:
+    src: daily-report.sh.j2
+    dest: "{{ daily_report_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [daily_report]
+
+- name: Deploy msmtp aliases file
+  ansible.builtin.template:
+    src: msmtp.aliases.j2
+    dest: /etc/msmtp.aliases
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [daily_report]
+
+- name: Deploy systemd service
+  ansible.builtin.template:
+    src: daily-report.service.j2
+    dest: "/etc/systemd/system/{{ daily_report_service_name }}.service"
+    mode: "0644"
+  notify: Restart daily report timer
+  tags: [daily_report]
+
+- name: Deploy systemd timer
+  ansible.builtin.template:
+    src: daily-report.timer.j2
+    dest: "/etc/systemd/system/{{ daily_report_service_name }}.timer"
+    mode: "0644"
+  notify: Restart daily report timer
+  tags: [daily_report]
+
+- name: Enable and start daily report timer
+  ansible.builtin.systemd:
+    name: "{{ daily_report_service_name }}.timer"
+    enabled: true
+    state: started
+  tags: [daily_report]

@@ -1,0 +1,64 @@
+---
+- name: Ensure APT cache is up to date for common tools
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: "{{ apt_cache_valid_time | default(3600) }}"
+  tags: [common_tools]
+
+- name: Install common administration and troubleshooting tools
+  ansible.builtin.apt:
+    name: "{{ common_tools_packages }}"
+    state: present
+  tags: [common_tools]
+
+- name: Install Prometheus node_exporter (if enabled)
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+  when: common_tools_node_exporter_install | bool
+  tags: [common_tools, node_exporter, monitoring]
+
+- name: Configure node_exporter listen address
+  ansible.builtin.lineinfile:
+    path: /etc/default/prometheus-node-exporter
+    regexp: "^ARGS="
+    line: 'ARGS="--web.listen-address={{ common_tools_node_exporter_listen_address }}"'
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart node_exporter
+  when: common_tools_node_exporter_install | bool
+  tags: [common_tools, node_exporter, monitoring]
+
+- name: Ensure node_exporter service is enabled and running
+  ansible.builtin.systemd:
+    name: prometheus-node-exporter
+    enabled: true
+    state: started
+  when: common_tools_node_exporter_install | bool
+  tags: [common_tools, node_exporter, monitoring]
+
+- name: Configure sudoers for common tools (NOPASSWD)
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/99-common-tools
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+    content: |
+      {{ common_tools_privileged_user }} ALL=(root) NOPASSWD: {{ common_tools_privileged_commands | join(",") }}
+  tags: [common_tools]
+
+- name: Ensure .bash_aliases exists with common tool aliases
+  ansible.builtin.copy:
+    dest: "/home/{{ common_tools_privileged_user }}/.bash_aliases"
+    owner: "{{ common_tools_privileged_user }}"
+    group: "{{ common_tools_privileged_user }}"
+    mode: "0644"
+    content: |
+      # Automatically managed by Ansible (common_tools role)
+      {% for name, cmd in common_tools_aliases.items() %}
+      alias {{ name }}="{{ cmd }}"
+      {% endfor %}
+  tags: [common_tools]

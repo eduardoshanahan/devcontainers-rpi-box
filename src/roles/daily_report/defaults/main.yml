@@ -1,0 +1,22 @@
+---
+# Time when the daily report should be sent
+daily_report_time: "07:00"
+
+# Email recipient
+daily_report_email: "user@example.com"
+
+# Email sender (appears in header)
+daily_report_sender: "user@example.com"
+
+# Path to install script
+daily_report_script_path: "/usr/local/bin/daily-report.sh"
+
+# Systemd unit name
+daily_report_service_name: "daily-report"
+
+# Zoho SMTP credentials (you will override the password via Vault)
+daily_report_smtp_user: "user@example.com"
+daily_report_smtp_password: "CHANGE_ME_IN_LOCAL_SECRETS"
+
+# User under which the daily report script / mail will run
+daily_report_user: "{{ ansible_user }}"
