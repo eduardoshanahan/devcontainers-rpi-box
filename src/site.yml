@@ -4,7 +4,7 @@
   gather_facts: true
 
   vars_files:
-    - inventory/group_vars/all/local-secrets.yml
+    - group_vars/all/local-secrets.yml
 
   roles:
     - role: common
