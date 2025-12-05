@@ -1,0 +1,4 @@
+ # Root .env
+
+# Only things you want to override from here
+EDITOR_CHOICE=code   # or: cursor

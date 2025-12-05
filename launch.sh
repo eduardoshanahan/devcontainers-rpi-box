@@ -9,18 +9,16 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Function to print error messages
-error() {
+# Logging helpers (renamed to avoid conflicts with /usr/bin/info)
+log_error() {
   echo -e "${RED}ERROR: $1${NC}" >&2
 }
 
-# Function to print success messages
-success() {
+log_success() {
   echo -e "${GREEN}$1${NC}"
 }
 
-# Function to print info messages
-info() {
+log_info() {
   echo -e "${YELLOW}$1${NC}"
 }
 
@@ -28,17 +26,19 @@ info() {
 check_var() {
   local var_name="$1"
   local var_value="$2"
-  if [ -z "$var_value" ]; then
-    error "$var_name is not set in .devcontainer/config/.env"
+  if [ -z "${var_value:-}" ]; then
+    log_error "$var_name is not set (in .devcontainer/config/.env or .env)"
     return 1
   fi
-  info "$var_name: $var_value"
+  log_info "$var_name: $var_value"
 }
 
-# Check if .env file exists
-if [ ! -f .devcontainer/config/.env ]; then
-  error ".devcontainer/config/.env file not found!"
-  error "Please create it with the following variables:"
+ENV_FILE=".devcontainer/config/.env"
+
+# Check if .devcontainer/config/.env file exists
+if [ ! -f "$ENV_FILE" ]; then
+  log_error "$ENV_FILE file not found!"
+  log_error "Please create it with the following variables:"
   cat <<EOF
 # User configuration
 HOST_USERNAME=your_username
@@ -50,7 +50,8 @@ GIT_USER_NAME="Your Name"
 GIT_USER_EMAIL="your.email@example.com"
 
 # Editor configuration
-EDITOR_CHOICE=code  # Use 'code' for VS Code or 'cursor' for Cursor
+# EDITOR_CHOICE can be set here OR in the project root .env
+# EDITOR_CHOICE=code  # Use 'code' for VS Code or 'cursor' for Cursor
 
 # Docker configuration
 DOCKER_IMAGE_NAME=your-image-name
@@ -59,13 +60,23 @@ EOF
   exit 1
 fi
 
-# Load environment variables from .devcontainer/config/.env
-info "Loading environment variables..."
+# 1) Load base environment variables from .devcontainer/config/.env
+log_info "Loading environment variables from $ENV_FILE..."
 set -a
-source .devcontainer/config/.env
+# shellcheck disable=SC1090
+source "$ENV_FILE"
 set +a
 
-# Export variables explicitly for devcontainer
+# 2) Optionally override (e.g. EDITOR_CHOICE) from root .env
+if [ -f .env ]; then
+  log_info "Loading overrides from .env (if set)..."
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
+# Export variables explicitly for devcontainer / scripts
 export HOST_USERNAME
 export HOST_UID
 export HOST_GID
@@ -87,42 +98,44 @@ required_vars=(
   "DOCKER_IMAGE_TAG"
 )
 
-# Check all required variables
+log_info "Validating required environment variables..."
 for var in "${required_vars[@]}"; do
   check_var "$var" "${!var:-}" || exit 1
 done
 
+log_info "EDITOR_CHOICE resolved to: ${EDITOR_CHOICE}"
+
 # Validate editor choice
 if [ "${EDITOR_CHOICE}" != "code" ] && [ "${EDITOR_CHOICE}" != "cursor" ]; then
-  error "EDITOR_CHOICE must be set to either 'code' or 'cursor' in .devcontainer/config/.env"
+  log_error "EDITOR_CHOICE must be set to either 'code' or 'cursor' (current: '${EDITOR_CHOICE}')"
   exit 1
 fi
 
 # Check if the chosen editor is installed
 if ! command -v "${EDITOR_CHOICE}" &>/dev/null; then
-  error "${EDITOR_CHOICE} is not installed!"
+  log_error "${EDITOR_CHOICE} is not installed!"
   if [ "${EDITOR_CHOICE}" = "code" ]; then
-    error "Please install VS Code from https://code.visualstudio.com/"
+    log_error "Please install VS Code from https://code.visualstudio.com/"
   else
-    error "Please install Cursor from https://cursor.sh"
+    log_error "Please install Cursor from https://cursor.sh"
   fi
   exit 1
 fi
 
 # Clean up any existing containers using our image
-if docker ps -a | grep -q "${DOCKER_IMAGE_NAME}"; then
-  info "Cleaning up existing containers..."
-  docker ps -a | grep "${DOCKER_IMAGE_NAME}" | cut -d' ' -f1 | xargs -r docker stop
-  docker ps -a | grep "${DOCKER_IMAGE_NAME}" | cut -d' ' -f1 | xargs -r docker rm
+if docker ps -a | grep -q "${DOCKER_IMAGE_NAME}" >/dev/null 2>&1; then
+  log_info "Cleaning up existing containers..."
+  docker ps -a | grep "${DOCKER_IMAGE_NAME}" | awk '{print $1}' | xargs -r docker stop
+  docker ps -a | grep "${DOCKER_IMAGE_NAME}" | awk '{print $1}' | xargs -r docker rm
 fi
 
 # Launch the editor
-info "Launching ${EDITOR_CHOICE}..."
+log_info "Launching ${EDITOR_CHOICE}..."
 if [ "${EDITOR_CHOICE}" = "code" ]; then
   code "${PWD}" >/dev/null 2>&1 &
 else
   cursor "${PWD}" --no-sandbox >/dev/null 2>&1 &
 fi
 
-success "${EDITOR_CHOICE} launched successfully!"
-disown 
+log_success "${EDITOR_CHOICE} launched successfully!"
+disown || true
