@@ -1,0 +1,5 @@
+---
+- name: Ensure APT cache is up to date
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: "{{ apt_cache_valid_time | default(3600) }}"

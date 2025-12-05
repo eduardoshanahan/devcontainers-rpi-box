@@ -7,6 +7,7 @@
     - group_vars/all/local-secrets.yml
 
   roles:
+    - role: apt_prep
     - role: common
     - role: common_tools
     - role: daily_report

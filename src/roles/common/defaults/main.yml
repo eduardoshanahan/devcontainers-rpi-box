@@ -1,0 +1,10 @@
+---
+# Base packages that every Raspberry Pi host should have available.
+# Extend this list in inventory/group vars as needed.
+common_packages:
+  - vim
+  - git
+  - curl
+  - tmux
+  - python3-pip
+  - locales
