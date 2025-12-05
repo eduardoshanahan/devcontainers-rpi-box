@@ -21,8 +21,11 @@ else
   TEMP="N/A"
 fi
 
-# Network info
-NETWORK=$(ip -4 addr show eth0 2>/dev/null || echo "eth0 not found")
+# Network info for all IPv4 interfaces
+NETWORK=$(ip -o -4 addr show | awk '{print $2 " " $4}' | column -t 2>/dev/null)
+
+# node_exporter status (if installed)
+NODE_EXPORTER_STATUS=$(systemctl is-active prometheus-node-exporter 2>/dev/null || echo "not installed")
 
 # Top CPU processes
 TOP_PROCS=$(ps aux --sort=-%cpu | head -n 6)
@@ -55,8 +58,11 @@ $DISK_ALL
 == Memory ==
 $MEMORY
 
-== Network (eth0) ==
+== Network Interfaces ==
 $NETWORK
+
+== node_exporter ==
+$NODE_EXPORTER_STATUS
 
 == Failed SSH logins in last 24h ==
 $FAILED_SSH
