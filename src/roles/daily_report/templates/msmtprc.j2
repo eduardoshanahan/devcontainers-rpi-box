@@ -4,7 +4,7 @@ defaults
 auth           on
 tls            on
 tls_trust_file /etc/ssl/certs/ca-certificates.crt
-logfile        /home/{{ daily_report_user }}/.msmtp.log
+logfile        {{ daily_report_msmtp_log_path }}
 aliases        /etc/msmtp.aliases
 
 # Zoho SMTP account

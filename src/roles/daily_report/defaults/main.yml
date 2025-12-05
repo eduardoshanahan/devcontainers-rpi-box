@@ -20,3 +20,6 @@ daily_report_smtp_password: "CHANGE_ME_IN_LOCAL_SECRETS"
 
 # User under which the daily report script / mail will run
 daily_report_user: "{{ ansible_user }}"
+
+# Where msmtp should write its log
+daily_report_msmtp_log_path: "/var/log/msmtp/msmtp.log"

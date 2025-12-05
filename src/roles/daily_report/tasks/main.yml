@@ -7,6 +7,24 @@
     update_cache: true
   tags: [daily_report]
 
+- name: Ensure msmtp log directory exists
+  ansible.builtin.file:
+    path: "{{ daily_report_msmtp_log_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [daily_report]
+
+- name: Ensure msmtp log file exists
+  ansible.builtin.file:
+    path: "{{ daily_report_msmtp_log_path }}"
+    state: touch
+    owner: "{{ daily_report_user }}"
+    group: "{{ daily_report_user }}"
+    mode: "0640"
+  tags: [daily_report]
+
 - name: Deploy msmtp configuration
   ansible.builtin.template:
     src: msmtprc.j2
