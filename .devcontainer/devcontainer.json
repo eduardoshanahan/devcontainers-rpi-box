@@ -21,7 +21,8 @@
                 "ms-vscode-remote.remote-containers",
                 "DavidAnson.vscode-markdownlint",
                 "esbenp.prettier-vscode",
-                "dbaeumer.vscode-eslint"
+                "dbaeumer.vscode-eslint",
+                "openai.codex"
             ],
             "settings": {
                 "ansible.ansible.path": "/usr/local/bin/ansible",
