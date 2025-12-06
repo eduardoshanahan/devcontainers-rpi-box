@@ -75,7 +75,8 @@ src/group_vars/all/local-secrets.yml
 # Real inventory with private IPs/hostnames
 src/inventory/hosts.yml
 
-rpi-bootstrap.md
+# Private notes
+working_memory.md
 
 # Virtual Environment
 venv/
