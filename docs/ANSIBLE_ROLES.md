@@ -344,10 +344,10 @@ all:
     rpi:
       hosts:
         rpi1:
-          ansible_host: 192.168.1.100
+          ansible_host: 192.0.2.10
           ansible_user: pi
         rpi2:
-          ansible_host: 192.168.1.101
+          ansible_host: 192.0.2.11
           ansible_user: pi
 ```
 

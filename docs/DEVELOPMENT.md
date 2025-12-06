@@ -338,7 +338,7 @@ docker logs <container-id>
 1. **Test SSH connection**:
 
 ```bash
-ssh pi@192.168.1.100
+ssh pi@192.0.2.10
 ```
 
 1. **Check inventory**:

@@ -4,7 +4,7 @@
 
 This document describes how to bootstrap a Raspberry Pi 4 running **Ubuntu 22.04.5 Server (preinstalled image)** using **cloud-init**, with:
 
-- A **static IPv4 address**: `192.168.50.58`
+- A **static IPv4 address**: `192.0.2.58`
 - Hostname: **`rpi-headless`**
 - **SSH enabled**
 - **Key-based authentication only** (no password logins)
@@ -20,9 +20,9 @@ This document describes how to bootstrap a Raspberry Pi 4 running **Ubuntu 22.04
   - SD card (e.g. 32 GB)
   - Ethernet connection to your LAN
 - Network assumptions:
-  - Static IP: `192.168.50.58`
-  - Gateway: `192.168.50.1`
-  - DNS: `192.168.50.1` and `1.1.1.1` (adjust if needed)
+  - Static IP: `192.0.2.58`
+  - Gateway: `192.0.2.1`
+  - DNS: `192.0.2.1` and `1.1.1.1` (adjust if needed)
 - Workstation:
   - Linux (or WSL) with `ssh`, `ssh-keygen`
   - Ability to mount the SD card partitions
@@ -130,10 +130,10 @@ ethernets:
   eth0:
     dhcp4: false
     addresses:
-      - 192.168.50.58/24
-    gateway4: 192.168.50.1
+      - 192.0.2.58/24
+    gateway4: 192.0.2.1
     nameservers:
-      addresses: [192.168.50.1, 1.1.1.1]
+      addresses: [192.0.2.1, 1.1.1.1]
     optional: true
 ```
 
@@ -150,7 +150,7 @@ touch /media/$USER/system-boot/ssh
 ## 8. Boot and SSH test
 
 ```bash
-ssh -i ~/.ssh/homelab-rpi homelabadmin@192.168.50.58
+ssh -i ~/.ssh/homelab-rpi homelabadmin@192.0.2.58
 ```
 
 Prompt should be:
@@ -169,7 +169,7 @@ all:
     rpi:
       hosts:
         rpi-headless:
-          ansible_host: 192.168.50.58
+          ansible_host: 192.0.2.58
           ansible_user: homelabadmin
           ansible_ssh_private_key_file: ~/.ssh/homelab-rpi
           ansible_ssh_common_args: "-o IdentitiesOnly=yes"
@@ -219,5 +219,5 @@ ansible rpi -m ping -k
 ```
 
 ```bash
-ssh -o PubkeyAuthentication=no homelabadmin@192.168.50.58
+ssh -o PubkeyAuthentication=no homelabadmin@192.0.2.58
 ```

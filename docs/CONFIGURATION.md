@@ -82,11 +82,11 @@ all:
     rpi:
       hosts:
         rpi1:
-          ansible_host: 192.168.1.100
+          ansible_host: 192.0.2.10
           ansible_user: pi
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
         rpi2:
-          ansible_host: 192.168.1.101
+          ansible_host: 192.0.2.11
           ansible_user: pi
           ansible_ssh_private_key_file: ~/.ssh/id_rsa
 ```
@@ -281,7 +281,7 @@ SSH keys should be in `~/.ssh/` on the host machine. They are automatically moun
 ssh-keygen -t ed25519 -C "your.email@example.com"
 
 # Copy to Raspberry Pi
-ssh-copy-id pi@192.168.1.100
+ssh-copy-id pi@192.0.2.10
 ```
 
 ### SSH Agent

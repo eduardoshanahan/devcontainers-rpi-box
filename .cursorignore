@@ -35,3 +35,5 @@ vendor/
 # OS files
 .DS_Store
 Thumbs.db 
+
+working_memory.md

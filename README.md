@@ -275,11 +275,11 @@ The development container uses environment variables for configuration. These ar
 
 | Variable | Description | Format | How to Get | Example |
 |----------|-------------|--------|------------|---------|
-| HOST_USERNAME | Your system username | Letters, numbers, underscore, hyphen | `echo $USER` | `eduardo` |
+| HOST_USERNAME | Your system username | Letters, numbers, underscore, hyphen | `echo $USER` | `jdoe` |
 | HOST_UID | Your user ID | Positive integer | `id -u` | `1000` |
 | HOST_GID | Your group ID | Positive integer | `id -g` | `1000` |
-| GIT_USER_NAME | Git commit author name | Letters, numbers, spaces, dots | Your full name | `Eduardo Shanahan` |
-| GIT_USER_EMAIL | Git commit author email | Valid email address | Your email | `eduardo@example.com` |
+| GIT_USER_NAME | Git commit author name | Letters, numbers, spaces, dots | Your full name | `Jane Doe` |
+| GIT_USER_EMAIL | Git commit author email | Valid email address | Your email | `jane@example.com` |
 
 ### Optional Variables
 
