@@ -4,11 +4,15 @@
 [![Docker](https://img.shields.io/badge/Docker-Required-blue)](https://www.docker.com/)
 [![VS Code](https://img.shields.io/badge/VS%20Code-Required-blue)](https://code.visualstudio.com/)
 
+## Project Overview
+
+This repository started as a development-container template and now bundles the Raspberry Pi automation project that lives in `src/`. The devcontainer gives you an Ansible-ready workstation (Ansible 9.x, ansible-lint, Docker CLI, Starship prompt, helper scripts) so you can develop and run the playbook without touching your host. From here you can clone, open in VS Code, and immediately provision Pis with the provided `site.yml`, inventory, and roles.
+
 ## Why do I have this project?
 
-This is a next step from [Development Container Template - Just Git](https://github.com/eduardoshanahan/devcontainers-git)
+This is a next step from [Development Container Template - Just Ansible](https://github.com/eduardoshanahan/devcontainers-ansible)
 
-Based in similar lines as devcontainers-git, I want to have an environment already primed to work with Ansible.
+Based in similar lines as devcontainers-ansible, I want to have an environment already primed to work with Raspberry Pi.
 
 The premises are again that I need to be able to synchronize the files in different machines using Synology Drive without permission issues.
 
@@ -90,6 +94,7 @@ ansible-playbook test-playbook.yml
 
 ## Table of Contents
 
+- [Project Overview](#project-overview)
 - [Quick Start](#quick-start)
 - [Setting Up a New GitHub Project](#setting-up-a-new-github-project)
 - [Usage](#usage)
@@ -107,6 +112,7 @@ ansible-playbook test-playbook.yml
 - [Environment Variable Details](#environment-variable-details)
 - [GitHub SSH Setup](#github-ssh-setup)
 - [Git Synchronization](#git-synchronization)
+- [Roadmap](#roadmap)
 
 ## Quick Start
 
@@ -122,7 +128,7 @@ ansible-playbook test-playbook.yml
 
    ```bash
    # Clone this template
-   git clone https://github.com/eduardoshanahan/devcontainers-ansible your-new-project
+   git clone https://github.com/eduardoshanahan/devcontainers-rpi your-new-project
    cd your-new-project
 
    # Remove the existing git history
@@ -163,13 +169,13 @@ ansible-playbook test-playbook.yml
    - Edit devcontainer.json. In particular update
 
    ```text
-    "name": "Ubuntu Devcontainers Ansible",
+    "name": "Ubuntu Devcontainers Raspberry Pi",
 
-   "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME:-devcontainers-ansible}",
+   "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME:-devcontainers-rpi}",
 
-    {localEnv:CONTAINER_HOSTNAME:-devcontainers-ansible}",
+    {localEnv:CONTAINER_HOSTNAME:-devcontainers-rpi}",
 
-   "--hostname=${localEnv:CONTAINER_HOSTNAME:devcontainers-ansible}",
+   "--hostname=${localEnv:CONTAINER_HOSTNAME:devcontainers-rpi}",
    ```
 
 4. **Initial Commit**
@@ -196,6 +202,8 @@ ansible-playbook test-playbook.yml
      ```
 
 ## Usage
+
+All Ansible automation lives under `src/`. After launching the devcontainer (`./launch.sh`), open `src/` in VS Code, copy `group_vars/all/local-secrets.example.yml` to `local-secrets.yml`, fill in credentials, and run `ansible-playbook -i inventory/hosts.yml site.yml` from inside that directory to configure your Raspberry Pi hosts.
 
 ### Requirements
 
@@ -279,7 +287,7 @@ The development container uses environment variables for configuration. These ar
 
 | Variable | Description | Default | Format | Example |
 |----------|-------------|---------|--------|---------|
-| CONTAINER_HOSTNAME | Container hostname shown in prompt | dev | Letters, numbers, hyphens | `ansible-dev` |
+| CONTAINER_HOSTNAME | Container hostname shown in prompt | dev | Letters, numbers, hyphens | `rpi-dev` |
 | CONTAINER_USER | Container user name | Same as HOST_USERNAME | Letters, numbers, underscore | `vscode` |
 | WORKSPACE_PATH | Workspace directory path | `/workspace` | Absolute path | `/workspace` |
 
@@ -300,7 +308,7 @@ The development container uses environment variables for configuration. These ar
 
 | Variable | Description | Default | Format | Example |
 |----------|-------------|---------|--------|---------|
-| DOCKER_IMAGE_NAME | Development container image name | dev-container | Lowercase letters, numbers, symbols | `ansible-dev` |
+| DOCKER_IMAGE_NAME | Development container image name | dev-container | Lowercase letters, numbers, symbols | `rpi-dev` |
 | DOCKER_IMAGE_TAG | Development container image tag | latest | Letters, numbers, symbols | `v1.0.0` |
 
 #### SSH Configuration
@@ -886,3 +894,9 @@ The project includes a `sync_git.sh` script that helps manage Git repository syn
 2. Use `FORCE_PULL=true` only when necessary
 3. Keep your `GIT_REMOTE_URL` updated in `.env`
 4. Check backup directory if force pull was used
+
+## Roadmap
+
+- Expand the `src/` Ansible project with service roles for Pi-hole, Prometheus, and Grafana so each Pi can be provisioned end-to-end from a single playbook.
+- Add SSH hardening, `/etc/motd` management, and firewall defaults to the `common` role to ensure consistent security across hosts.
+- Introduce CI automation (ansible-lint, yamllint, syntax checks) so pull requests are validated automatically before changes land.
