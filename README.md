@@ -128,7 +128,7 @@ ansible-playbook test-playbook.yml
 
    ```bash
    # Clone this template
-   git clone https://github.com/eduardoshanahan/devcontainers-rpi your-new-project
+   git clone https://github.com/eduardoshanahan/devcontainers-rpi-box your-new-project
    cd your-new-project
 
    # Remove the existing git history
@@ -171,11 +171,11 @@ ansible-playbook test-playbook.yml
    ```text
     "name": "Ubuntu Devcontainers Raspberry Pi",
 
-   "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME:-devcontainers-rpi}",
+   "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME:-devcontainers-rpi-box}",
 
     {localEnv:CONTAINER_HOSTNAME:-devcontainers-rpi}",
 
-   "--hostname=${localEnv:CONTAINER_HOSTNAME:devcontainers-rpi}",
+   "--hostname=${localEnv:CONTAINER_HOSTNAME:devcontainers-rpi-box}",
    ```
 
 4. **Initial Commit**
@@ -676,7 +676,7 @@ git remote set-url origin git@github.com:username/repository.git
 
 If you encounter issues:
 
-1. Check the [GitHub Issues](https://github.com/eduardoshanahan/devcontainers-git/issues)
+1. Check the [GitHub Issues](https://github.com/eduardoshanahan/devcontainers-rpi-box/issues)
 2. Review the [VS Code Remote Containers documentation](https://code.visualstudio.com/docs/remote/containers)
 3. Consult the [Docker documentation](https://docs.docker.com/)
 4. Create a new issue with:
