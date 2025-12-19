@@ -1,0 +1,10 @@
+---
+storage_layout_directories:
+  - path: /srv/apps
+    owner: root
+    group: root
+    mode: "0755"
+  - path: /srv/docker
+    owner: root
+    group: root
+    mode: "0755"

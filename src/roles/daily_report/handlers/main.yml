@@ -1,0 +1,6 @@
+---
+- name: Restart daily report timer
+  ansible.builtin.systemd:
+    name: "{{ daily_report_service_name }}.timer"
+    state: restarted
+    daemon_reload: true

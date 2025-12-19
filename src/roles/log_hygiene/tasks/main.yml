@@ -1,0 +1,34 @@
+---
+- name: Ensure logrotate is installed
+  ansible.builtin.apt:
+    name: logrotate
+    state: present
+  tags: [log_hygiene]
+
+- name: Ensure journald config directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [log_hygiene]
+
+- name: Configure journald retention limits
+  ansible.builtin.template:
+    src: journald.conf.j2
+    dest: /etc/systemd/journald.conf.d/99-log-hygiene.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart systemd-journald
+  tags: [log_hygiene]
+
+- name: Configure logrotate for common services
+  ansible.builtin.template:
+    src: logrotate-rpi-base.j2
+    dest: /etc/logrotate.d/rpi-base
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [log_hygiene]

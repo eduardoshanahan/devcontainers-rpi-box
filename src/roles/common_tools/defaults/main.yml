@@ -1,0 +1,21 @@
+---
+common_tools_packages:
+  - curl
+  - git
+  - nano
+  - tmux
+  - htop
+  - rsync
+  - unzip
+  - jq
+  - dnsutils
+  - iotop
+  - iftop
+  - nload
+  - net-tools
+  - vnstat
+  - needrestart
+  - ncdu
+  - tcpdump
+  - lsof
+  - strace

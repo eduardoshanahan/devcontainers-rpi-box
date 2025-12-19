@@ -1,0 +1,27 @@
+---
+# Example host_vars for the Raspberry Pi target.
+# Copy this to rpi_box.yml (kept out of git via .gitignore) and customize
+# values.
+ansible_host: "192.0.2.10"
+ansible_port: 22
+ansible_user: "CHANGE_ME"
+ansible_ssh_private_key_file: "~/.ssh/CHANGE_ME"
+
+pi_base_admin_user: "{{ ansible_user }}"
+pi_base_admin_ssh_public_key: >-
+  {{ lookup('file', ansible_ssh_private_key_file + '.pub') }}
+pi_base_hostname: "rpi-box-01"
+pi_base_timezone: "Europe/Dublin"
+pi_base_locale: "en_IE.UTF-8"
+
+daily_report_time: "07:00"
+daily_report_email: "user@example.com"
+daily_report_sender: "user@example.com"
+daily_report_script_path: "/usr/local/bin/daily-report.sh"
+daily_report_service_name: "daily-report"
+daily_report_smtp_host: "smtp.example.com"
+daily_report_smtp_port: 587
+daily_report_smtp_user: "user@example.com"
+daily_report_smtp_password: "CHANGE_ME"
+daily_report_user: "{{ ansible_user }}"
+daily_report_msmtp_log_path: "/var/log/msmtp/msmtp.log"

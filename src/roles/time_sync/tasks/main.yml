@@ -1,0 +1,23 @@
+---
+- name: Ensure systemd-timesyncd is installed
+  ansible.builtin.apt:
+    name: systemd-timesyncd
+    state: present
+  tags: [time_sync]
+
+- name: Configure systemd-timesyncd
+  ansible.builtin.template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart systemd-timesyncd
+  tags: [time_sync]
+
+- name: Ensure systemd-timesyncd service is enabled and running
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
+  tags: [time_sync]
