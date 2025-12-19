@@ -48,6 +48,19 @@ else
   JOURNAL_DISK="N/A"
 fi
 
+# Docker status
+if command -v docker >/dev/null 2>&1; then
+  DOCKER_STATUS=$(systemctl is-active docker 2>/dev/null || echo "unknown")
+  DOCKER_INFO=$(docker info --format '{% raw %}{{.ServerVersion}} {{.Driver}}{% endraw %}' 2>/dev/null || echo "N/A")
+  DOCKER_COMPOSE=$(docker compose version 2>/dev/null | head -n 1 || echo "N/A")
+  DOCKER_CONTAINERS=$(docker ps -a --format 'table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}' 2>/dev/null)
+else
+  DOCKER_STATUS="N/A"
+  DOCKER_INFO="N/A"
+  DOCKER_COMPOSE="N/A"
+  DOCKER_CONTAINERS="N/A"
+fi
+
 # Logrotate policy presence
 if [ -f /etc/logrotate.d/rpi-base ]; then
   LOGROTATE_POLICY="present"
@@ -91,6 +104,18 @@ $TIME_SYNC
 
 == Journald Disk Usage ==
 $JOURNAL_DISK
+
+== Docker Status ==
+$DOCKER_STATUS
+
+== Docker Info (version/driver) ==
+$DOCKER_INFO
+
+== Docker Compose ==
+$DOCKER_COMPOSE
+
+== Docker Containers ==
+$DOCKER_CONTAINERS
 
 == Logrotate Policy (/etc/logrotate.d/rpi-base) ==
 $LOGROTATE_POLICY

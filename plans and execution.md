@@ -28,31 +28,24 @@ This document tracks what has been executed so far and a lightweight roadmap for
 - Added a `log_hygiene` role to cap journald disk usage and manage log rotation.
 - Added a `node_exporter` role for basic host metrics.
 - Added a `storage_layout` role to enforce `/srv` conventions for apps and Docker data.
+- Added a `docker_engine` role for Docker CE + Compose V2 with daemon defaults.
 - Extended `scripts/ansible-smoke.sh` with idempotence checks and service validation.
 - Normalized fail2ban role variables to the `fail2ban_base_` prefix for linting.
 - Expanded daily report output with fail2ban, time sync, journald, and logrotate data.
 - Expanded `common_tools` with vnstat, needrestart, ncdu, tcpdump, lsof, and strace.
+- Expanded daily report output with Docker status and running containers.
 
-## Next Minimal Steps (Candidate Options)
+## Next Minimal Steps
 
-Pick one of these as the next small, safe increment:
+1. **Docker verification**
+   - Add a one-shot Docker validation play or smoke checks that run:
+     `docker info`, `docker run --rm hello-world`, and `docker compose version`.
+   - Decide whether to keep data-root at `/srv/docker` or move it to a mounted SSD.
+2. **Next session reminder**
+   - Re-run `ansible-playbook src/playbooks/pi-base.yml -l rpi_box_01` to confirm the daily report fix applies cleanly.
+   - Run `./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini` to validate lint + idempotence.
 
-1. **SSH + Access polish**
-   - Ensure `/etc/ssh/sshd_config` includes any additional hardening (e.g., `AllowUsers`).
-   - Optionally add a fail2ban role (if desired).
+## Longer-Term (After Docker Is Stable)
 
-2. **Unattended security updates**
-   - Add a small role to enable unattended upgrades and security patches.
-
-3. **Baseline tooling (non-Docker)**
-   - Expand tooling or make it configurable per host group.
-
-4. **Network hygiene**
-   - Add optional allowlist rules for future services (HTTP/HTTPS, metrics).
-
-## Longer-Term (After Base Is Stable)
-
-- Docker install role (upstream Docker CE, compose plugin, daemon config).
-- Data directories in `/srv/docker` with secure permissions.
 - First application (e.g., Pi-hole) as a compose stack.
-- Add smoke tests / ansible lint checks for playbooks and roles.
+- Add docker-specific smoke tests (daemon status, `docker run hello-world`).

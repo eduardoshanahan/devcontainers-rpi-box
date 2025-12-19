@@ -12,5 +12,6 @@
     - log_hygiene
     - node_exporter
     - storage_layout
+    - docker_engine
     - common_tools
     - daily_report

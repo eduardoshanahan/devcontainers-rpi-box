@@ -7,10 +7,15 @@
 - Added `log_hygiene` role for journald retention and logrotate rules.
 - Added `node_exporter` role for basic host metrics.
 - Added `storage_layout` role to create `/srv/apps` and `/srv/docker`.
-- Extended `scripts/ansible-smoke.sh` to validate fail2ban, timesyncd, log hygiene, node exporter, and storage layout.
+- Added `docker_engine` role (Docker CE + Compose V2) with daemon defaults and `/srv/docker` data-root.
+- Extended `scripts/ansible-smoke.sh` to validate fail2ban, timesyncd, log hygiene, node exporter, storage layout, and Docker.
 - Renamed fail2ban role variables to the `fail2ban_base_` prefix for linting.
 - Expanded the daily report to include fail2ban, time sync, journald usage, and logrotate status.
 - Extended `common_tools` with vnstat, needrestart, ncdu, tcpdump, lsof, and strace.
+- Added cloud-init seed examples under `non_comitted_files/system-boot` and gitignored the real seed files.
+- Refreshed `README.md` with short, current project links.
+- Made `common_tools` idempotent by skipping apt when all packages are installed.
+- Expanded the daily report to include Docker status, version, and running containers.
 
 ## 2025-12-18
 
