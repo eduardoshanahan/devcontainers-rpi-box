@@ -102,3 +102,12 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
   ```bash
   ansible rpi_box_01 -m command -a "ls -ld /srv/apps /srv/docker" -b
   ```
+
+## Docker Engine
+
+- Confirm Docker is enabled and Compose V2 is available (requires sudo, use `-b`):
+
+  ```bash
+  ansible rpi_box_01 -m command -a "systemctl status docker --no-pager" -b
+  ansible rpi_box_01 -m command -a "docker compose version" -b
+  ```

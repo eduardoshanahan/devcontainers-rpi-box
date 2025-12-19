@@ -81,6 +81,8 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `log_hygiene_logrotate_frequency`
    - `node_exporter_listen_address`
    - `storage_layout_directories` (list of directories with owner/group/mode)
+   - `docker_engine_data_root`, `docker_engine_log_max_size`, `docker_engine_log_max_file`
+   - `docker_engine_users`
 
 ## 3. Verify Ansible Connectivity
 
@@ -100,7 +102,8 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 ## 4. Update the Raspberry Pi Base OS
 
 1. Run the base playbook to refresh the apt cache, upgrade all packages, enable
-   fail2ban + time sync + log hygiene + node exporter, and prepare `/srv`:
+   fail2ban + time sync + log hygiene + node exporter, prepare `/srv`, and
+   install Docker Engine + Compose V2:
 
    ```bash
    cd src
