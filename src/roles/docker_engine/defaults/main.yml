@@ -1,0 +1,6 @@
+---
+docker_engine_data_root: "/srv/docker"
+docker_engine_log_max_size: "10m"
+docker_engine_log_max_file: "3"
+docker_engine_users:
+  - "{{ ansible_user }}"
