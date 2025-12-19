@@ -1,0 +1,128 @@
+---
+# Baseline OS prep for Raspberry Pi hosts.
+
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  tags: [pi_base, updates]
+
+- name: Upgrade all packages to the latest release (dist-upgrade)
+  ansible.builtin.apt:
+    upgrade: dist
+    autoremove: true
+  register: pi_base_upgrade
+  tags: [pi_base, updates]
+
+- name: Check if reboot is required after upgrades
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: pi_base_reboot_required
+  tags: [pi_base, updates]
+
+- name: Reboot if the kernel or critical packages changed
+  ansible.builtin.reboot:
+    msg: "Rebooting after package upgrades"
+    connect_timeout: 30
+    reboot_timeout: 600
+    test_command: whoami
+  when: pi_base_reboot_required.stat.exists
+  tags: [pi_base, updates]
+
+- name: Ensure required pi_base variables are provided
+  ansible.builtin.assert:
+    that:
+      - pi_base_admin_user is defined
+      - pi_base_admin_user | length > 0
+      - pi_base_admin_ssh_public_key is defined
+      - pi_base_admin_ssh_public_key | length > 0
+      - pi_base_hostname is defined
+      - pi_base_hostname | length > 0
+      - pi_base_timezone is defined
+      - pi_base_timezone | length > 0
+      - pi_base_locale is defined
+      - pi_base_locale | length > 0
+    fail_msg: "Define required pi_base_* variables before applying this role."
+  tags: [pi_base, access]
+
+- name: Ensure admin user exists with sudo access
+  ansible.builtin.user:
+    name: "{{ pi_base_admin_user }}"
+    groups: sudo
+    append: true
+    shell: /bin/bash
+    create_home: true
+    state: present
+  tags: [pi_base, access]
+
+- name: Ensure admin user authorized key is present
+  ansible.posix.authorized_key:
+    user: "{{ pi_base_admin_user }}"
+    key: "{{ pi_base_admin_ssh_public_key }}"
+    state: present
+  tags: [pi_base, access]
+
+- name: Allow passwordless sudo for admin user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/90-{{ pi_base_admin_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+    content: "{{ pi_base_admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+  tags: [pi_base, access]
+
+- name: Set system hostname
+  ansible.builtin.hostname:
+    name: "{{ pi_base_hostname }}"
+  tags: [pi_base, identity]
+
+- name: Set system timezone
+  community.general.timezone:
+    name: "{{ pi_base_timezone }}"
+  tags: [pi_base, identity]
+
+- name: Ensure locales package is installed
+  ansible.builtin.apt:
+    name: locales
+    state: present
+  tags: [pi_base, identity]
+
+- name: Ensure locale is generated
+  community.general.locale_gen:
+    name: "{{ pi_base_locale }}"
+    state: present
+  tags: [pi_base, identity]
+
+- name: Set default locale
+  ansible.builtin.copy:
+    dest: /etc/default/locale
+    owner: root
+    group: root
+    mode: "0644"
+    content: "LANG={{ pi_base_locale }}\n"
+  tags: [pi_base, identity]
+
+- name: Disable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication no"
+  notify: Restart ssh
+  tags: [pi_base, access]
+
+- name: Disable SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin no"
+  notify: Restart ssh
+  tags: [pi_base, access]
+
+- name: Ensure SSH public key auth is enabled
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+  notify: Restart ssh
+  tags: [pi_base, access]

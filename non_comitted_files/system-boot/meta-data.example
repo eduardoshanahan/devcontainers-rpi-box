@@ -1,0 +1,4 @@
+# Example cloud-init meta-data for Raspberry Pi
+dsmode: local
+instance-id: rpi-box-01
+local-hostname: rpi-box-01

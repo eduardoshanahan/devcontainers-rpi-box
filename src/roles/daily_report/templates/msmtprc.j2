@@ -1,0 +1,17 @@
+# msmtp configuration for {{ inventory_hostname }}
+
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        {{ daily_report_msmtp_log_path }}
+aliases        /etc/msmtp.aliases
+
+account        smtp
+host           {{ daily_report_smtp_host }}
+port           {{ daily_report_smtp_port }}
+from           {{ daily_report_sender }}
+user           {{ daily_report_smtp_user }}
+password       {{ daily_report_smtp_password }}
+
+account default : smtp

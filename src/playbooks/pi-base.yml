@@ -1,0 +1,16 @@
+---
+- name: Prepare Raspberry Pi base OS
+  hosts: raspberry_pi
+  become: true
+  gather_facts: true
+  roles:
+    - pi_base
+    - unattended_upgrades
+    - ufw_base
+    - fail2ban_base
+    - time_sync
+    - log_hygiene
+    - node_exporter
+    - storage_layout
+    - common_tools
+    - daily_report

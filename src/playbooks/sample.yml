@@ -1,0 +1,8 @@
+---
+- name: Base sanity check
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: Display hello message
+      ansible.builtin.debug:
+        msg: "Ansible inside the devcontainer is ready"

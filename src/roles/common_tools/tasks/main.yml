@@ -1,0 +1,16 @@
+---
+- name: Gather installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+  tags: [common_tools]
+
+- name: Install common tools
+  ansible.builtin.apt:
+    name: "{{ common_tools_packages }}"
+    state: present
+  vars:
+    common_tools_missing: >-
+      {{ common_tools_packages | difference(ansible_facts.packages.keys()
+      | list) }}
+  when: common_tools_missing | length > 0
+  tags: [common_tools]

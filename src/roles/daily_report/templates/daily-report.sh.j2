@@ -1,0 +1,100 @@
+#!/bin/bash
+
+HOSTNAME=$(hostname)
+DATE=$(date)
+
+# Uptime and load
+UPTIME_HUMAN=$(uptime -p 2>/dev/null || uptime)
+LOAD_AVG=$(cut -d ' ' -f1-3 /proc/loadavg)
+
+# Disk usage
+DISK_ROOT=$(df -h / | tail -1)
+DISK_ALL=$(df -h --output=source,fstype,size,used,avail,pcent,target | sed -n '1p;/^\/dev/p')
+
+# Memory
+MEMORY=$(free -h)
+
+# CPU temperature (Raspberry Pi and most ARM boards)
+if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+  TEMP=$(awk '{printf "%.1fC\n", $1/1000}' /sys/class/thermal/thermal_zone0/temp)
+else
+  TEMP="N/A"
+fi
+
+# Network info for all IPv4 interfaces
+NETWORK=$(ip -o -4 addr show | awk '{print $2 " " $4}' | column -t 2>/dev/null)
+
+# Failed SSH logins in last 24h
+FAILED_SSH=$(journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -c "Failed password" 2>/dev/null || echo "N/A")
+
+# Fail2ban SSH jail status
+if command -v fail2ban-client >/dev/null 2>&1; then
+  FAIL2BAN_SSHD=$(fail2ban-client status sshd 2>/dev/null | awk -F': ' '/Currently banned|Total banned|Currently failed/{print $1 ": " $2}' || echo "N/A")
+else
+  FAIL2BAN_SSHD="N/A"
+fi
+
+# Time sync status
+if command -v timedatectl >/dev/null 2>&1; then
+  TIME_SYNC=$(timedatectl status 2>/dev/null | awk -F': ' '/System clock synchronized|NTP service/{print $1 ": " $2}' | paste -sd ', ' -)
+else
+  TIME_SYNC="N/A"
+fi
+
+# Journald disk usage
+if command -v journalctl >/dev/null 2>&1; then
+  JOURNAL_DISK=$(journalctl --disk-usage 2>/dev/null | tr -d '\n')
+else
+  JOURNAL_DISK="N/A"
+fi
+
+# Logrotate policy presence
+if [ -f /etc/logrotate.d/rpi-base ]; then
+  LOGROTATE_POLICY="present"
+else
+  LOGROTATE_POLICY="missing"
+fi
+
+REPORT=$(cat <<EOF
+Daily Report for $HOSTNAME
+Date: $DATE
+
+== Uptime ==
+$UPTIME_HUMAN
+
+== Load Average (1m 5m 15m) ==
+$LOAD_AVG
+
+== CPU Temperature ==
+$TEMP
+
+== Disk Usage (/) ==
+$DISK_ROOT
+
+== All Disk Mounts ==
+$DISK_ALL
+
+== Memory ==
+$MEMORY
+
+== Network Interfaces ==
+$NETWORK
+
+== Failed SSH logins in last 24h ==
+$FAILED_SSH
+
+== Fail2ban SSHD ==
+$FAIL2BAN_SSHD
+
+== Time Sync ==
+$TIME_SYNC
+
+== Journald Disk Usage ==
+$JOURNAL_DISK
+
+== Logrotate Policy (/etc/logrotate.d/rpi-base) ==
+$LOGROTATE_POLICY
+EOF
+)
+
+echo "$REPORT" | mail -s "Daily Report: $HOSTNAME" "{{ daily_report_email }}"

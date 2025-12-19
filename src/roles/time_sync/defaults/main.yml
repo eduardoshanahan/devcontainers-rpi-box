@@ -1,0 +1,5 @@
+---
+time_sync_ntp_servers:
+  - "pool.ntp.org"
+time_sync_fallback_servers:
+  - "time.cloudflare.com"

@@ -1,0 +1,9 @@
+[DEFAULT]
+bantime = {{ fail2ban_base_bantime }}
+findtime = {{ fail2ban_base_findtime }}
+maxretry = {{ fail2ban_base_maxretry }}
+ignoreip = {{ fail2ban_base_ignoreip | join(' ') }}
+backend = {{ fail2ban_base_backend }}
+
+[sshd]
+enabled = true

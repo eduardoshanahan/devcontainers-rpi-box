@@ -1,0 +1,9 @@
+[Unit]
+Description=Run the daily report script daily at {{ daily_report_time }}
+
+[Timer]
+OnCalendar=*-*-* {{ daily_report_time }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

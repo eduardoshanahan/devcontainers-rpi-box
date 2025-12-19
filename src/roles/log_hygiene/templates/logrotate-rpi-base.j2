@@ -1,0 +1,11 @@
+/var/log/msmtp/msmtp.log
+/var/log/fail2ban.log
+{
+    {{ log_hygiene_logrotate_frequency }}
+    rotate {{ log_hygiene_logrotate_rotate }}
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+}
