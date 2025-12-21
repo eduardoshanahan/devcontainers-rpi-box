@@ -1,0 +1,37 @@
+---
+- name: Ensure smoke test directory exists
+  ansible.builtin.file:
+    path: /srv/docker/smoke-test
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy smoke test compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /srv/docker/smoke-test/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start smoke test container
+  community.docker.docker_compose_v2:
+    project_src: /srv/docker/smoke-test
+    state: present
+    wait: true
+
+- name: Verify smoke test endpoint
+  ansible.builtin.uri:
+    url: http://localhost:8000
+    status_code: 200
+    return_content: false
+  register: docker_smoke_test_result
+  retries: 5
+  delay: 2
+  until: docker_smoke_test_result.status == 200
+
+- name: Tear down smoke test container
+  community.docker.docker_compose_v2:
+    project_src: /srv/docker/smoke-test
+    state: absent

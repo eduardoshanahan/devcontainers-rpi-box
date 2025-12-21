@@ -1,0 +1,6 @@
+# 2025-12-18
+
+1. **Docker verification**
+   - Add a one-shot Docker validation play or smoke checks that run:
+     `docker info`, `docker run --rm hello-world`, and `docker compose version`.
+   - Decide whether to keep data-root at `/srv/docker` or move it to a mounted SSD.
