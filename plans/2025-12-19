@@ -1,0 +1,14 @@
+# 2025-12-19
+
+- First application (e.g., Pi-hole) as a compose stack.
+- Add docker-specific smoke tests (daemon status, `docker run hello-world`).
+
+## **Next session reminder**
+
+- Re-run `ansible-playbook src/playbooks/pi-base.yml -l rpi_box_01` to confirm the daily report fix applies cleanly.
+- Run `./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini` to validate lint + idempotence.
+
+## Longer-Term (After Docker Is Stable)
+
+- First application (e.g., Pi-hole) as a compose stack.
+- Add docker-specific smoke tests (daemon status, `docker run hello-world`).
