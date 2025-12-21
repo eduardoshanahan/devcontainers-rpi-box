@@ -1,0 +1,9 @@
+# 2025-12-21
+
+- Create `src/playbooks/pi-apps.yml` for permanent application deployments (keeping `pi-base` focused on OS/infra).
+- Implement the first real application (e.g., Pi-hole) using the Docker Compose roles.
+
+## **Next session reminder**
+
+- Run `./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini` to ensure base stability before adding apps.
+- Consider moving `docker_smoke_test` to a tagged run or separate verification playbook if it slows down daily operations too much.

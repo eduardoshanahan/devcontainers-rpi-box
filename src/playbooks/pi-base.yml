@@ -15,3 +15,4 @@
     - docker_engine
     - common_tools
     - daily_report
+    - docker_smoke_test

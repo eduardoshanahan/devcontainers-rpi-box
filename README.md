@@ -7,16 +7,17 @@ roles live under `src/`.
 ## Quick Start
 
 1. Copy `.env.example` to `.env`, then run `./launch.sh`.
-2. Reopen in container (VS Code/Cursor) to use the preconfigured Ansible tools.
+2. Reopen in container (VS Code/Cursor/Antigravity) to use the preconfigured Ansible tools.
 3. Configure host vars and cloud-init seed files.
 4. Run the base playbook: `ansible-playbook src/playbooks/pi-base.yml`.
 
 ## Key Docs
 
+- Setup of environment variables: [working with environment variables](working%20with%20environment%20variables.md)
 - Usage and cloud-init SD steps: [how to use this project.md](how%20to%20use%20this%20project.md)
 - Validation and smoke tests: [how to test.md](how%20to%20test.md)
-- Current state and history: [recap.md](recap.md)
-- Roadmap and decisions: [plans and execution.md](plans%20and%20execution.md)
+- Current state and history: [recaps](/recaps)
+- Roadmap and decisions: [plans](/plans)
 
 ## Helpful Scripts
 

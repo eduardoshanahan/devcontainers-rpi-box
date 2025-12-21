@@ -26,6 +26,8 @@
             },
             "extensions": [
                 "ms-azuretools.vscode-docker",
+                "docker.docker",
+                "openai.chatgpt",
                 "DavidAnson.vscode-markdownlint",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
