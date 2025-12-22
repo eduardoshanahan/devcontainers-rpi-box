@@ -58,7 +58,7 @@
     repo: >-
       deb [arch={{ docker_engine_arch }} signed-by=/etc/apt/keyrings/docker.gpg]
       https://download.docker.com/linux/ubuntu
-      {{ ansible_distribution_release }} stable
+      {{ docker_engine_apt_release }} stable
     filename: docker
     state: present
     update_cache: false
@@ -70,14 +70,40 @@
     cache_valid_time: 3600
   tags: [docker_engine]
 
+- name: Check Docker apt repo availability
+  ansible.builtin.command:
+    cmd: apt-cache policy docker-ce
+  register: docker_engine_repo_check
+  changed_when: false
+  tags: [docker_engine]
+
+- name: Fail if Docker packages are unavailable
+  ansible.builtin.fail:
+    msg: >-
+      Docker apt repo is configured but docker-ce is not available. Check apt
+      update output or set docker_engine_apt_release to a supported Ubuntu
+      codename (e.g., jammy).
+  when: "'Candidate: (none)' in docker_engine_repo_check.stdout"
+  tags: [docker_engine]
+
+- name: Build Docker package version suffixes
+  ansible.builtin.set_fact:
+    docker_engine_version_suffix: >-
+      {{ (docker_engine_version )
+      | ternary('=' ~ docker_engine_version, '') }}
+    docker_engine_compose_version_suffix: >-
+      {{ (docker_engine_compose_version )
+      | ternary('=' ~ docker_engine_compose_version, '') }}
+  tags: [docker_engine]
+
 - name: Install Docker Engine and plugins
   ansible.builtin.apt:
     name:
-      - docker-ce
-      - docker-ce-cli
+      - "docker-ce{{ docker_engine_version_suffix }}"
+      - "docker-ce-cli{{ docker_engine_version_suffix }}"
       - containerd.io
       - docker-buildx-plugin
-      - docker-compose-plugin
+      - "docker-compose-plugin{{ docker_engine_compose_version_suffix }}"
     state: present
     update_cache: true
     cache_valid_time: 3600
