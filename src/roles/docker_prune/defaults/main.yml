@@ -1,0 +1,11 @@
+---
+# Schedule for the prune timer (systemd calendar format)
+docker_prune_schedule: "weekly"
+
+# Command to execute
+# --all removes unused images, not just dangling ones
+# --force bypasses confirmation
+docker_prune_command: "/usr/bin/docker system prune --all --force"
+
+# Service name base
+docker_prune_service_name: "docker-prune"

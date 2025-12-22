@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+# Configuration
+export RESTIC_REPOSITORY="{{ backup_restic_repo }}"
+export RESTIC_PASSWORD="{{ backup_restic_password }}"
+
+# Initialize repository if it doesn't exist
+if ! restic snapshots > /dev/null 2>&1; then
+    echo "Initializing restic repository at $RESTIC_REPOSITORY..."
+    restic init
+fi
+
+echo "Starting backup of {{ backup_restic_src }}..."
+restic backup "{{ backup_restic_src }}" --verbose
+
+echo "Pruning old snapshots..."
+restic forget \
+    --keep-daily {{ backup_restic_retention_days }} \
+    --keep-weekly {{ backup_restic_retention_weeks }} \
+    --keep-monthly {{ backup_restic_retention_months }} \
+    --prune
+
+echo "Backup complete."

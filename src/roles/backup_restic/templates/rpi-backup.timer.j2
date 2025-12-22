@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule Restic Backup
+RefuseManualStart=no
+RefuseManualStop=no
+
+[Timer]
+OnCalendar={{ backup_restic_timer_schedule }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

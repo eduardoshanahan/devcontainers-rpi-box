@@ -1,0 +1,21 @@
+---
+# Path to the Restic repository (destination)
+# MUST be defined by user (e.g. in host_vars)
+# backup_restic_repo: /mnt/backup/restic-repo
+
+# Directory to back up (source)
+# MUST be defined by user
+# backup_restic_src: /srv/docker
+
+# Restic password
+# MUST be defined by user
+# backup_restic_password: "change_me_please"
+
+# Retention policy
+backup_restic_retention_days: 7
+backup_restic_retention_weeks: 4
+backup_restic_retention_months: 6
+
+# Schedule (systemd calendar format)
+# daily -> "*-*-* 00:00:00"
+backup_restic_timer_schedule: "daily"

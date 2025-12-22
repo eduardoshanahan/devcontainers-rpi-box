@@ -10,6 +10,7 @@ LOAD_AVG=$(cut -d ' ' -f1-3 /proc/loadavg)
 # Disk usage
 DISK_ROOT=$(df -h / | tail -1)
 DISK_ALL=$(df -h --output=source,fstype,size,used,avail,pcent,target | sed -n '1p;/^\/dev/p')
+DISK_INODES=$(df -i / | tail -1)
 
 # Memory
 MEMORY=$(free -h)
@@ -23,6 +24,14 @@ fi
 
 # Network info for all IPv4 interfaces
 NETWORK=$(ip -o -4 addr show | awk '{print $2 " " $4}' | column -t 2>/dev/null)
+DEFAULT_ROUTE=$(ip route show default 2>/dev/null | head -n 1)
+if command -v resolvectl >/dev/null 2>&1; then
+  DNS_STATUS=$(resolvectl status 2>/dev/null | awk -F': ' '/DNS Servers|Current DNS Server/{print $1 ": " $2}' | paste -sd ', ' -)
+elif [ -f /etc/resolv.conf ]; then
+  DNS_STATUS=$(grep -E '^nameserver' /etc/resolv.conf 2>/dev/null | tr -s ' ' | paste -sd ', ' -)
+else
+  DNS_STATUS="N/A"
+fi
 
 # Failed SSH logins in last 24h
 FAILED_SSH=$(journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -c "Failed password" 2>/dev/null || echo "N/A")
@@ -54,11 +63,13 @@ if command -v docker >/dev/null 2>&1; then
   DOCKER_INFO=$(docker info --format '{% raw %}{{.ServerVersion}} {{.Driver}}{% endraw %}' 2>/dev/null || echo "N/A")
   DOCKER_COMPOSE=$(docker compose version 2>/dev/null | head -n 1 || echo "N/A")
   DOCKER_CONTAINERS=$(docker ps -a --format 'table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}' 2>/dev/null)
+  DOCKER_STORAGE=$(docker system df 2>/dev/null || echo "N/A")
 else
   DOCKER_STATUS="N/A"
   DOCKER_INFO="N/A"
   DOCKER_COMPOSE="N/A"
   DOCKER_CONTAINERS="N/A"
+  DOCKER_STORAGE="N/A"
 fi
 
 # Logrotate policy presence
@@ -66,6 +77,34 @@ if [ -f /etc/logrotate.d/rpi-base ]; then
   LOGROTATE_POLICY="present"
 else
   LOGROTATE_POLICY="missing"
+fi
+
+# Backup (Restic) status
+if systemctl list-timers --all 2>/dev/null | grep -q "rpi-backup.timer"; then
+  BACKUP_TIMER=$(systemctl list-timers --all rpi-backup.timer 2>/dev/null | awk 'NR==2{print $1 " " $2 " | " $4 " " $5}')
+else
+  BACKUP_TIMER="N/A"
+fi
+if systemctl list-units --all 2>/dev/null | grep -q "rpi-backup.service"; then
+  BACKUP_SERVICE=$(systemctl show -p ActiveState -p SubState -p Result rpi-backup.service 2>/dev/null | paste -sd ', ' -)
+  BACKUP_LOG=$(journalctl -u rpi-backup.service -n 20 --no-pager 2>/dev/null || echo "N/A")
+else
+  BACKUP_SERVICE="N/A"
+  BACKUP_LOG="N/A"
+fi
+
+# Pending package updates
+if command -v apt >/dev/null 2>&1; then
+  UPDATE_COUNT=$(apt list --upgradable 2>/dev/null | tail -n +2 | wc -l)
+else
+  UPDATE_COUNT="N/A"
+fi
+
+# Raspberry Pi temperature (if vcgencmd is available)
+if command -v vcgencmd >/dev/null 2>&1; then
+  VCGEN_TEMP=$(vcgencmd measure_temp 2>/dev/null || echo "N/A")
+else
+  VCGEN_TEMP="N/A"
 fi
 
 REPORT=$(cat <<EOF
@@ -84,6 +123,9 @@ $TEMP
 == Disk Usage (/) ==
 $DISK_ROOT
 
+== Disk Inodes (/) ==
+$DISK_INODES
+
 == All Disk Mounts ==
 $DISK_ALL
 
@@ -92,6 +134,12 @@ $MEMORY
 
 == Network Interfaces ==
 $NETWORK
+
+== Default Route ==
+$DEFAULT_ROUTE
+
+== DNS ==
+$DNS_STATUS
 
 == Failed SSH logins in last 24h ==
 $FAILED_SSH
@@ -117,8 +165,26 @@ $DOCKER_COMPOSE
 == Docker Containers ==
 $DOCKER_CONTAINERS
 
+== Docker Storage ==
+$DOCKER_STORAGE
+
 == Logrotate Policy (/etc/logrotate.d/rpi-base) ==
 $LOGROTATE_POLICY
+
+== Backup Timer ==
+$BACKUP_TIMER
+
+== Backup Service ==
+$BACKUP_SERVICE
+
+== Backup Log (last 20 lines) ==
+$BACKUP_LOG
+
+== Pending Package Updates ==
+$UPDATE_COUNT
+
+== Raspberry Pi Firmware Temp ==
+$VCGEN_TEMP
 EOF
 )
 

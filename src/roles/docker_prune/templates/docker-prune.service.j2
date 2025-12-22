@@ -1,0 +1,8 @@
+[Unit]
+Description=Docker System Prune
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart={{ docker_prune_command }}

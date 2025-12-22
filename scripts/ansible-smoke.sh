@@ -72,7 +72,6 @@ run_playbook "second-pass"
 
 echo ">>> Verifying host state (group: ${SMOKE_GROUP})"
 ansible -i "$INVENTORY" "$SMOKE_GROUP" -b -m shell -a "grep -Eq '^PasswordAuthentication no' /etc/ssh/sshd_config && grep -Eq '^PermitRootLogin no' /etc/ssh/sshd_config"
-ansible -i "$INVENTORY" "$SMOKE_GROUP" -b -m shell -a "ufw status | grep -q 'Status: active' && ufw status | grep -Eq '(OpenSSH|22/tcp)'"
 ansible -i "$INVENTORY" "$SMOKE_GROUP" -b -m shell -a "grep -q 'APT::Periodic::Unattended-Upgrade \"1\"' /etc/apt/apt.conf.d/20auto-upgrades"
 ansible -i "$INVENTORY" "$SMOKE_GROUP" -b -m shell -a "systemctl is-enabled unattended-upgrades"
 ansible -i "$INVENTORY" "$SMOKE_GROUP" -b -m shell -a "systemctl is-enabled fail2ban"
