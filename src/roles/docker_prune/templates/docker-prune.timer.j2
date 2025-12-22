@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule Docker System Prune
+RefuseManualStart=no
+RefuseManualStop=no
+
+[Timer]
+OnCalendar={{ docker_prune_schedule }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

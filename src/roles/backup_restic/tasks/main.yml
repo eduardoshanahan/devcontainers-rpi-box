@@ -1,0 +1,60 @@
+---
+- name: Ensure required backup variables are provided
+  ansible.builtin.assert:
+    that:
+      - backup_restic_repo is defined
+      - backup_restic_repo | length > 0
+      - backup_restic_src is defined
+      - backup_restic_src | length > 0
+      - backup_restic_password is defined
+      - backup_restic_password | length > 0
+    fail_msg: >-
+      Define required backup_restic_* variables (repo, src, password)
+      before applying this role.
+
+- name: Install Restic
+  ansible.builtin.apt:
+    name: restic
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Deploy backup script
+  ansible.builtin.template:
+    src: rpi-backup.sh.j2
+    dest: /usr/local/bin/rpi-backup.sh
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Create backup service unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/rpi-backup.service
+    content: |
+      [Unit]
+      Description=Restic Backup for Docker Data
+      After=network.target docker.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/rpi-backup.sh
+      User=root
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Create backup timer unit
+  ansible.builtin.template:
+    src: rpi-backup.timer.j2
+    dest: /etc/systemd/system/rpi-backup.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start backup timer
+  ansible.builtin.systemd:
+    name: rpi-backup.timer
+    enabled: true
+    state: started

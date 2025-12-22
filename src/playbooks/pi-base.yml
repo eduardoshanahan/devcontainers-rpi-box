@@ -6,13 +6,14 @@
   roles:
     - pi_base
     - unattended_upgrades
-    - ufw_base
     - fail2ban_base
     - time_sync
     - log_hygiene
     - node_exporter
     - storage_layout
     - docker_engine
+    - docker_prune
     - common_tools
     - daily_report
+    - backup_restic
     - docker_smoke_test

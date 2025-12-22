@@ -15,6 +15,11 @@ This living document captures the workflow for operating the Raspberry Pi auto
    - `ANSIBLE_INVENTORY=/workspace/src/inventory/hosts.ini`
    - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
    - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
+   - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
+   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`
+   - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
+   - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
+   - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
 
 The devcontainer loads these variables from `.env`, so keeping them here makes the configuration obvious and versioned via `.env.example`.
 
@@ -57,18 +62,20 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 
 4. Eject the SD card safely, insert it into the Pi, and boot. SSH should be ready after the first boot.
 
+### 2.3 Configure inventory host vars
+
 1. Copy the example host vars file and keep the real one out of git (replace `rpi_box_01` with your host name):
 
    ```bash
    cp src/inventory/host_vars/rpi_box.example.yml src/inventory/host_vars/rpi_box_01.yml
    ```
 
-2. Edit `src/inventory/host_vars/rpi_box_01.yml` with the correct `ansible_host`, `ansible_port`, `ansible_user`, and `ansible_ssh_private_key_file`. Because of the `.gitignore` in that directory, this file stays local-only.
+2. Edit `src/inventory/host_vars/rpi_box_01.yml` with the correct `ansible_host` and `ansible_port`. The remaining values are read from `.env` via `lookup('env', ...)` so the file can stay minimal and local-only.
 3. Add the required `pi_base` variables so the base role can lock down access safely:
    - `pi_base_admin_user` (same as `ansible_user`)
-   - `pi_base_admin_ssh_public_key` (public key for the admin user)
+   - `pi_base_admin_ssh_public_key_file` (path to the admin public key)
    - `pi_base_hostname`, `pi_base_timezone`, `pi_base_locale`
-4. Add the required `daily_report` variables if you want the daily status email:
+4. Add the required `daily_report` variables if you want the daily status email (set them in `.env` or `host_vars`):
    - `daily_report_time`, `daily_report_email`, `daily_report_sender`
    - `daily_report_smtp_host`, `daily_report_smtp_port`, `daily_report_smtp_user`, `daily_report_smtp_password`
    - `daily_report_user`, `daily_report_script_path`, `daily_report_service_name`, `daily_report_msmtp_log_path`
@@ -83,6 +90,12 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `storage_layout_directories` (list of directories with owner/group/mode)
    - `docker_engine_data_root`, `docker_engine_log_max_size`, `docker_engine_log_max_file`
    - `docker_engine_users`
+6. Configure Backup variables (Restic):
+   - Set these in `.env` (recommended) or `host_vars`:
+     - `BACKUP_RESTIC_REPO` / `backup_restic_repo`
+     - `BACKUP_RESTIC_SRC` / `backup_restic_src`
+     - `BACKUP_RESTIC_PASSWORD` / `backup_restic_password`
+   - Ensure the backup destination is mounted and writable before running the playbook.
 
 ## 3. Verify Ansible Connectivity
 

@@ -34,8 +34,8 @@
     that:
       - pi_base_admin_user is defined
       - pi_base_admin_user | length > 0
-      - pi_base_admin_ssh_public_key is defined
-      - pi_base_admin_ssh_public_key | length > 0
+      - pi_base_admin_ssh_public_key_file is defined
+      - pi_base_admin_ssh_public_key_file | length > 0
       - pi_base_hostname is defined
       - pi_base_hostname | length > 0
       - pi_base_timezone is defined
@@ -43,6 +43,12 @@
       - pi_base_locale is defined
       - pi_base_locale | length > 0
     fail_msg: "Define required pi_base_* variables before applying this role."
+  tags: [pi_base, access]
+
+- name: Load admin SSH public key from file
+  ansible.builtin.set_fact:
+    pi_base_admin_ssh_public_key: >-
+      {{ lookup('file', pi_base_admin_ssh_public_key_file) | trim }}
   tags: [pi_base, access]
 
 - name: Ensure admin user exists with sudo access

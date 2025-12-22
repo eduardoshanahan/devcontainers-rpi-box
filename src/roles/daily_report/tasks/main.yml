@@ -48,6 +48,12 @@
   tags: [daily_report]
 
 - name: Ensure msmtp log file exists
+  ansible.builtin.command:
+    cmd: "touch {{ daily_report_msmtp_log_path }}"
+    creates: "{{ daily_report_msmtp_log_path }}"
+  tags: [daily_report]
+
+- name: Set msmtp log file permissions
   ansible.builtin.file:
     path: "{{ daily_report_msmtp_log_path }}"
     state: file

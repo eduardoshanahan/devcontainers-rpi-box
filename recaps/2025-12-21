@@ -1,7 +1,0 @@
-# 2025-12-21
-
-- Included `community.docker` in `requirements.yml`.
-- Created `docker_smoke_test` role to deploy a transient `whoami` container for verification.
-- Updated `pi-base` playbook to include the smoke test as the final step.
-- Established a pattern for validating Docker networking and cleanup automatically.
-- Verified the entire stack (idempotence + smoke checks) on `rpi_box_01`.

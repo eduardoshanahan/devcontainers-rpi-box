@@ -4,3 +4,6 @@ docker_engine_log_max_size: "10m"
 docker_engine_log_max_file: "3"
 docker_engine_users:
   - "{{ ansible_user }}"
+docker_engine_apt_release: "{{ ansible_distribution_release }}"
+docker_engine_version: ""
+docker_engine_compose_version: ""

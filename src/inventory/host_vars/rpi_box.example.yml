@@ -4,16 +4,18 @@
 # values.
 ansible_host: "192.0.2.10"
 ansible_port: 22
+# SSH connection user and private key used by Ansible
 ansible_user: "CHANGE_ME"
 ansible_ssh_private_key_file: "~/.ssh/CHANGE_ME"
 
+# Admin user provisioned on the Pi and its public key
 pi_base_admin_user: "{{ ansible_user }}"
-pi_base_admin_ssh_public_key: >-
-  {{ lookup('file', ansible_ssh_private_key_file + '.pub') }}
+pi_base_admin_ssh_public_key_file: "~/.ssh/CHANGE_ME.pub"
 pi_base_hostname: "rpi-box-01"
 pi_base_timezone: "Europe/Dublin"
 pi_base_locale: "en_IE.UTF-8"
 
+# Daily report scheduling and email settings (msmtp)
 daily_report_time: "07:00"
 daily_report_email: "user@example.com"
 daily_report_sender: "user@example.com"
@@ -25,3 +27,8 @@ daily_report_smtp_user: "user@example.com"
 daily_report_smtp_password: "CHANGE_ME"
 daily_report_user: "{{ ansible_user }}"
 daily_report_msmtp_log_path: "/var/log/msmtp/msmtp.log"
+
+# Backup configuration (Restic)
+backup_restic_repo: "/mnt/backup/restic-repo"
+backup_restic_src: "/srv/docker"
+backup_restic_password: "CHANGE_ME"

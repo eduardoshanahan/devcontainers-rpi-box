@@ -1,8 +1,9 @@
 # Raspberry Pi Automation (Ansible)
 
 This repo provides a devcontainer-backed Ansible workflow to provision and
-maintain Raspberry Pi hosts (Ubuntu Server). All playbooks, inventory, and
-roles live under `src/`.
+maintain Raspberry Pi hosts (Ubuntu Server). It is ready to use as a template
+for Docker-based app deployments after the base OS/infra setup completes. All
+playbooks, inventory, and roles live under `src/`.
 
 ## Quick Start
 

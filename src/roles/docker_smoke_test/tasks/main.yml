@@ -20,6 +20,7 @@
     project_src: /srv/docker/smoke-test
     state: present
     wait: true
+  changed_when: false
 
 - name: Verify smoke test endpoint
   ansible.builtin.uri:
@@ -35,3 +36,4 @@
   community.docker.docker_compose_v2:
     project_src: /srv/docker/smoke-test
     state: absent
+  changed_when: false

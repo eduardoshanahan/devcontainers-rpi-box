@@ -19,14 +19,6 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
   ./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini
   ```
 
-## UFW
-
-- Check firewall status (requires sudo, use `-b`):
-
-  ```bash
-  ansible rpi_box_01 -m command -a "ufw status verbose" -b
-  ```
-
 ## SSH Hardening
 
 - Confirm SSH settings (requires sudo, use `-b`):
@@ -55,6 +47,21 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
 
   ```bash
   ansible rpi_box_01 -m command -a "systemctl start daily-report.service" -b
+  ```
+
+## Backup (Restic)
+
+- Check the timer and last run status (requires sudo, use `-b`):
+
+  ```bash
+  ansible rpi_box_01 -m command -a "systemctl status rpi-backup.timer --no-pager" -b
+  ansible rpi_box_01 -m command -a "systemctl status rpi-backup.service --no-pager" -b
+  ```
+
+- Review recent backup logs (requires sudo, use `-b`):
+
+  ```bash
+  ansible rpi_box_01 -m command -a "journalctl -u rpi-backup.service -n 20 --no-pager" -b
   ```
 
 ## Fail2ban
