@@ -14,6 +14,8 @@ pi_base_admin_ssh_public_key_file: "~/.ssh/CHANGE_ME.pub"
 pi_base_hostname: "rpi-box-01"
 pi_base_timezone: "Europe/Dublin"
 pi_base_locale: "en_IE.UTF-8"
+pi_base_disable_resolved_stub: >-
+  {{ lookup('env', 'PI_BASE_DISABLE_RESOLVED_STUB') | bool }}
 
 # Daily report scheduling and email settings (msmtp)
 daily_report_time: "07:00"
