@@ -16,7 +16,7 @@ This living document captures the workflow for operating the Raspberry Pi auto
    - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
    - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
    - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
-   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`
+   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
    - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
    - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
    - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
@@ -90,6 +90,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `storage_layout_directories` (list of directories with owner/group/mode)
    - `docker_engine_data_root`, `docker_engine_log_max_size`, `docker_engine_log_max_file`
    - `docker_engine_users`
+   - `pi_base_disable_resolved_stub` (set true for Pi-hole or other DNS apps)
 6. Configure Backup variables (Restic):
    - Set these in `.env` (recommended) or `host_vars`:
      - `BACKUP_RESTIC_REPO` / `backup_restic_repo`

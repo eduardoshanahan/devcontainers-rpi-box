@@ -42,6 +42,7 @@
       - pi_base_timezone | length > 0
       - pi_base_locale is defined
       - pi_base_locale | length > 0
+      - pi_base_disable_resolved_stub is defined
     fail_msg: "Define required pi_base_* variables before applying this role."
   tags: [pi_base, access]
 
@@ -132,3 +133,35 @@
     line: "PubkeyAuthentication yes"
   notify: Restart ssh
   tags: [pi_base, access]
+
+- name: Ensure systemd-resolved drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: pi_base_disable_resolved_stub | bool
+  tags: [pi_base, dns]
+
+- name: Disable systemd-resolved stub listener for DNS
+  ansible.builtin.copy:
+    dest: /etc/systemd/resolved.conf.d/disable-stub.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Resolve]
+      DNSStubListener=no
+  when: pi_base_disable_resolved_stub | bool
+  notify: Restart systemd-resolved
+  tags: [pi_base, dns]
+
+- name: Ensure resolv.conf points to systemd-resolved output
+  ansible.builtin.file:
+    src: "{{ pi_base_resolv_conf_target }}"
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  when: pi_base_disable_resolved_stub | bool
+  tags: [pi_base, dns]
