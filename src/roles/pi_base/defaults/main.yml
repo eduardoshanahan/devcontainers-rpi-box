@@ -1,0 +1,3 @@
+---
+pi_base_disable_resolved_stub: false
+pi_base_resolv_conf_target: /run/systemd/resolve/resolv.conf
