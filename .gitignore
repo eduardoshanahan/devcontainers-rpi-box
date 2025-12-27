@@ -99,11 +99,11 @@ lm_conversations/
 !lm_conversations/.gitkeep
 
 # Raspberry Pi cloud-init seed originals (keep examples tracked)
-non_comitted_files/system-boot/meta-data
-non_comitted_files/system-boot/network-config
-non_comitted_files/system-boot/user-data
-non_comitted_files/system-boot/ssh
-!non_comitted_files/system-boot/*.example
+sd_card_files/system-boot/meta-data
+sd_card_files/system-boot/network-config
+sd_card_files/system-boot/user-data
+sd_card_files/system-boot/ssh
+!sd_card_files/system-boot/*.example
 
 # Vendored Ansible collections (downloaded via galaxy install)
 src/collections/ansible_collections/

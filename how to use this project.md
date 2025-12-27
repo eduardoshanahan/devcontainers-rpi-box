@@ -35,16 +35,16 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 1. Copy the example files into the real cloud-init seed paths (keep them out of git):
 
    ```bash
-   cp non_comitted_files/system-boot/meta-data.example non_comitted_files/system-boot/meta-data
-   cp non_comitted_files/system-boot/network-config.example non_comitted_files/system-boot/network-config
-   cp non_comitted_files/system-boot/user-data.example non_comitted_files/system-boot/user-data
-   cp non_comitted_files/system-boot/ssh.example non_comitted_files/system-boot/ssh
+   cp sd_card_files/system-boot/meta-data.example sd_card_files/system-boot/meta-data
+   cp sd_card_files/system-boot/network-config.example sd_card_files/system-boot/network-config
+   cp sd_card_files/system-boot/user-data.example sd_card_files/system-boot/user-data
+   cp sd_card_files/system-boot/ssh.example sd_card_files/system-boot/ssh
    ```
 
-2. Edit `non_comitted_files/system-boot/meta-data` with the desired hostname and instance id.
-3. Edit `non_comitted_files/system-boot/network-config` with the correct static IP and DNS.
-4. Edit `non_comitted_files/system-boot/user-data` with the correct user name and SSH key.
-5. Ensure `non_comitted_files/system-boot/ssh` is an empty file (this enables SSH on first boot).
+2. Edit `sd_card_files/system-boot/meta-data` with the desired hostname and instance id.
+3. Edit `sd_card_files/system-boot/network-config` with the correct static IP and DNS.
+4. Edit `sd_card_files/system-boot/user-data` with the correct user name and SSH key.
+5. Ensure `sd_card_files/system-boot/ssh` is an empty file (this enables SSH on first boot).
 
 ### 2.2 Apply seed files to the SD card
 
@@ -53,10 +53,10 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 3. Copy the seed files into the root of the `system-boot` partition:
 
    ```bash
-   cp non_comitted_files/system-boot/meta-data /media/<user>/system-boot/
-   cp non_comitted_files/system-boot/network-config /media/<user>/system-boot/
-   cp non_comitted_files/system-boot/user-data /media/<user>/system-boot/
-   cp non_comitted_files/system-boot/ssh /media/<user>/system-boot/
+   cp sd_card_files/system-boot/meta-data /media/<user>/system-boot/
+   cp sd_card_files/system-boot/network-config /media/<user>/system-boot/
+   cp sd_card_files/system-boot/user-data /media/<user>/system-boot/
+   cp sd_card_files/system-boot/ssh /media/<user>/system-boot/
    sync
    ```
 

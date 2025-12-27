@@ -27,5 +27,5 @@ playbooks, inventory, and roles live under `src/`.
 
 ## Notes
 
-- Cloud-init seed examples live in `non_comitted_files/system-boot/*.example`.
+- Cloud-init seed examples live in `sd_card_files/system-boot/*.example`.
 - Real seed files are gitignored; copy the examples before flashing.
