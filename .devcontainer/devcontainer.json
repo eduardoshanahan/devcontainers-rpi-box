@@ -6,7 +6,10 @@
         "args": {
             "USERNAME": "${localEnv:HOST_USERNAME}",
             "USER_UID": "${localEnv:HOST_UID}",
-            "USER_GID": "${localEnv:HOST_GID}"
+            "USER_GID": "${localEnv:HOST_GID}",
+            "ANSIBLE_CORE_VERSION": "${localEnv:ANSIBLE_CORE_VERSION}",
+            "ANSIBLE_LINT_VERSION": "${localEnv:ANSIBLE_LINT_VERSION}",
+            "YAMLLINT_VERSION": "${localEnv:YAMLLINT_VERSION}"
         }
     },
     "customizations": {
@@ -66,7 +69,8 @@
         "GIT_REMOTE_URL": "${localEnv:GIT_REMOTE_URL}",
         "ANSIBLE_CONFIG": "${localEnv:ANSIBLE_CONFIG}",
         "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME}",
-        "DOCKER_IMAGE_TAG": "${localEnv:DOCKER_IMAGE_TAG}"
+        "DOCKER_IMAGE_TAG": "${localEnv:DOCKER_IMAGE_TAG}",
+        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
     },
     "runArgs": [
         "--name=${localEnv:DOCKER_IMAGE_NAME}",
