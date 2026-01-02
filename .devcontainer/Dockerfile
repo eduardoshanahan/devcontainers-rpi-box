@@ -14,20 +14,23 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3-pip \
     sshpass \
     wget \
-    && locale-gen en_US.UTF-8 \
-    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+    && locale-gen en_IE.UTF-8 \
+    && update-locale LANG=en_IE.UTF-8 LC_ALL=en_IE.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
+ENV LANG=en_IE.UTF-8 \
+    LANGUAGE=en_IE:en \
+    LC_ALL=en_IE.UTF-8
 
 # Install Ansible tooling via pip so the CLI and python packages stay in sync
+ARG ANSIBLE_CORE_VERSION
+ARG ANSIBLE_LINT_VERSION
+ARG YAMLLINT_VERSION
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir \
-        "ansible-core==2.17.*" \
-        "ansible-lint==25.12.1" \
-        "yamllint==1.35.*"
+    "ansible-core${ANSIBLE_CORE_VERSION:+==${ANSIBLE_CORE_VERSION}}" \
+    "ansible-lint${ANSIBLE_LINT_VERSION:+==${ANSIBLE_LINT_VERSION}}" \
+    "yamllint${YAMLLINT_VERSION:+==${YAMLLINT_VERSION}}"
 
 # Install Starship
 RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
