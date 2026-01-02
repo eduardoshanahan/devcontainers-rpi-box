@@ -1,4 +1,13 @@
 ---
+- name: Ensure required node_exporter variables are provided
+  ansible.builtin.assert:
+    that:
+      - node_exporter_listen_address is defined
+      - node_exporter_listen_address | length > 0
+    fail_msg: >-
+      Define required node_exporter_* variables before applying this role.
+  tags: [node_exporter]
+
 - name: Install node exporter package
   ansible.builtin.apt:
     name: prometheus-node-exporter

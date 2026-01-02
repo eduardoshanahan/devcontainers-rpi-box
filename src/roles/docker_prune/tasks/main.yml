@@ -1,4 +1,17 @@
 ---
+- name: Ensure required docker_prune variables are provided
+  ansible.builtin.assert:
+    that:
+      - docker_prune_schedule is defined
+      - docker_prune_schedule | length > 0
+      - docker_prune_command is defined
+      - docker_prune_command | length > 0
+      - docker_prune_service_name is defined
+      - docker_prune_service_name | length > 0
+    fail_msg: >-
+      Define required docker_prune_* variables before applying this role.
+  tags: [docker_prune]
+
 - name: Create systemd service unit
   ansible.builtin.template:
     src: docker-prune.service.j2

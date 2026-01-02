@@ -1,10 +1,12 @@
 ---
-storage_layout_directories:
-  - path: /srv/apps
-    owner: root
-    group: root
-    mode: "0755"
-  - path: /srv/docker
-    owner: root
-    group: root
-    mode: "0755"
+# No defaults. Define in host_vars/group_vars.
+# Example:
+# storage_layout_directories:
+#   - path: /srv/apps
+#     owner: root
+#     group: root
+#     mode: "0755"
+#   - path: /srv/docker
+#     owner: root
+#     group: root
+#     mode: "0755"

@@ -79,18 +79,22 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `daily_report_time`, `daily_report_email`, `daily_report_sender`
    - `daily_report_smtp_host`, `daily_report_smtp_port`, `daily_report_smtp_user`, `daily_report_smtp_password`
    - `daily_report_user`, `daily_report_script_path`, `daily_report_service_name`, `daily_report_msmtp_log_path`
-5. Optional overrides for baseline hardening and time sync:
+5. Required role variables (no defaults; set in `host_vars` or `group_vars`):
+   - `pi_base_disable_resolved_stub`, `pi_base_resolv_conf_target`
    - `fail2ban_base_bantime`, `fail2ban_base_findtime`, `fail2ban_base_maxretry`
    - `fail2ban_base_ignoreip`, `fail2ban_base_backend`
    - `time_sync_ntp_servers`, `time_sync_fallback_servers`
    - `log_hygiene_journald_max_use`, `log_hygiene_journald_keep_free`
-   - `log_hygiene_journald_max_file_sec`, `log_hygiene_logrotate_rotate`
-   - `log_hygiene_logrotate_frequency`
+   - `log_hygiene_journald_max_file_sec`, `log_hygiene_logrotate_rotate`, `log_hygiene_logrotate_frequency`
    - `node_exporter_listen_address`
    - `storage_layout_directories` (list of directories with owner/group/mode)
    - `docker_engine_data_root`, `docker_engine_log_max_size`, `docker_engine_log_max_file`
-   - `docker_engine_users`
-   - `pi_base_disable_resolved_stub` (set true for Pi-hole or other DNS apps)
+   - `docker_engine_users`, `docker_engine_apt_release`
+   - `docker_engine_version`, `docker_engine_compose_version` (set to empty string to install latest)
+   - `docker_prune_schedule`, `docker_prune_command`, `docker_prune_service_name`
+   - `common_tools_packages`
+   - `backup_restic_retention_days`, `backup_restic_retention_weeks`, `backup_restic_retention_months`
+   - `backup_restic_timer_schedule`
 6. Configure Backup variables (Restic):
    - Set these in `.env` (recommended) or `host_vars`:
      - `BACKUP_RESTIC_REPO` / `backup_restic_repo`
@@ -125,5 +129,17 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    ```
 
 2. The play targets the `[raspberry_pi]` inventory group. Limit to a single host (e.g., `-l rpi_box_01`) if you add more Pis later.
+3. Docker packages are installed from Docker's apt repo. If a transient repo mismatch occurs (for example, a containerd.io candidate is missing), the playbook will fall back to the next available version and you can re-run later to converge.
+
+## 5. Upgrade to the latest Ubuntu LTS (manual playbook)
+
+1. The daily report email includes an "LTS Upgrade Check" line that mirrors `do-release-upgrade -c`. When it shows a new release, run the manual upgrade playbook:
+
+   ```bash
+   cd src
+   ansible-playbook playbooks/ubuntu-lts-upgrade.yml -l rpi_box_01 -e lts_upgrade_confirm=true
+   ```
+
+2. Expect the SSH session to disconnect during the upgrade and for the host to reboot. Reconnect once it comes back.
 
 As new functionality (e.g., OS hardening, Docker install, application deployments) is added, document the invocation steps and required variables here so end-to-end usage stays discoverable.

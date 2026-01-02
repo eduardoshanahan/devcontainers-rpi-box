@@ -118,3 +118,10 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
   ansible rpi_box_01 -m command -a "systemctl status docker --no-pager" -b
   ansible rpi_box_01 -m command -a "docker compose version" -b
   ```
+
+- Confirm installed versions (requires sudo, use `-b`):
+
+  ```bash
+  ansible rpi_box_01 -m command -a "docker --version" -b
+  ansible rpi_box_01 -m command -a "containerd --version" -b
+  ```

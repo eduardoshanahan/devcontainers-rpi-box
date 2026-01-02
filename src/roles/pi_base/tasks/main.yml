@@ -43,6 +43,8 @@
       - pi_base_locale is defined
       - pi_base_locale | length > 0
       - pi_base_disable_resolved_stub is defined
+      - pi_base_resolv_conf_target is defined
+      - pi_base_resolv_conf_target | length > 0
     fail_msg: "Define required pi_base_* variables before applying this role."
   tags: [pi_base, access]
 

@@ -1,5 +1,7 @@
 ---
-time_sync_ntp_servers:
-  - "pool.ntp.org"
-time_sync_fallback_servers:
-  - "time.cloudflare.com"
+# No defaults. Define in host_vars/group_vars.
+# Example:
+# time_sync_ntp_servers:
+#   - "pool.ntp.org"
+# time_sync_fallback_servers:
+#   - "time.cloudflare.com"
