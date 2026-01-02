@@ -1,2 +1,4 @@
 ---
-node_exporter_listen_address: "0.0.0.0:9100"
+# No defaults. Define in host_vars/group_vars.
+# Example:
+# node_exporter_listen_address: "0.0.0.0:9100"

@@ -94,10 +94,6 @@ env/
 ehthumbs.db
 Thumbs.db 
 
-# LM conversations
-lm_conversations/
-!lm_conversations/.gitkeep
-
 # Raspberry Pi cloud-init seed originals (keep examples tracked)
 non_comitted_files/system-boot/meta-data
 non_comitted_files/system-boot/network-config

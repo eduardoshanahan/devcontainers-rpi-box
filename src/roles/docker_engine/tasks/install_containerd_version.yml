@@ -1,0 +1,29 @@
+---
+- name: Attempt containerd.io install ({{ docker_engine_containerd_version }})
+  ansible.builtin.apt:
+    name: "containerd.io={{ docker_engine_containerd_version }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 0
+    force_apt_get: true
+  register: docker_engine_containerd_install_attempt
+  ignore_errors: true
+  when: docker_engine_containerd_install_succeeded is not defined
+
+- name: Mark containerd.io install success
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Version}' containerd.io
+  register: docker_engine_containerd_installed_raw
+  changed_when: false
+  failed_when: false
+  when: docker_engine_containerd_install_succeeded is not defined
+
+- name: Record installed containerd.io version after attempt
+  ansible.builtin.set_fact:
+    docker_engine_containerd_installed_version: >-
+      {{ docker_engine_containerd_installed_raw.stdout | trim }}
+    docker_engine_containerd_install_succeeded: true
+  when:
+    - docker_engine_containerd_install_succeeded is not defined
+    - docker_engine_containerd_installed_raw.stdout is defined
+    - (docker_engine_containerd_installed_raw.stdout | trim) | length > 0

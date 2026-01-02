@@ -12,6 +12,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     openssh-client \
     python3 \
     python3-pip \
+    ripgrep \
     sshpass \
     wget \
     && locale-gen en_IE.UTF-8 \

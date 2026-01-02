@@ -17,8 +17,9 @@ playbooks, inventory, and roles live under `src/`.
 - Setup of environment variables: [working with environment variables](working%20with%20environment%20variables.md)
 - Usage and cloud-init SD steps: [how to use this project.md](how%20to%20use%20this%20project.md)
 - Validation and smoke tests: [how to test.md](how%20to%20test.md)
-- Current state and history: [recaps](/recaps)
-- Roadmap and decisions: [plans](/plans)
+- Daily timeline + summaries: [lm/recap](lm/recap) and [lm/recaps](lm/recaps)
+- Current state: [lm/state](lm/state)
+- Roadmap and decisions: [lm/plans](lm/plans)
 
 ## Helpful Scripts
 

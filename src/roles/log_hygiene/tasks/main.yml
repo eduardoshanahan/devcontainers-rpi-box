@@ -1,4 +1,20 @@
 ---
+- name: Ensure required log_hygiene variables are provided
+  ansible.builtin.assert:
+    that:
+      - log_hygiene_journald_max_use is defined
+      - log_hygiene_journald_max_use | length > 0
+      - log_hygiene_journald_keep_free is defined
+      - log_hygiene_journald_keep_free | length > 0
+      - log_hygiene_journald_max_file_sec is defined
+      - log_hygiene_journald_max_file_sec | length > 0
+      - log_hygiene_logrotate_rotate is defined
+      - log_hygiene_logrotate_frequency is defined
+      - log_hygiene_logrotate_frequency | length > 0
+    fail_msg: >-
+      Define required log_hygiene_* variables before applying this role.
+  tags: [log_hygiene]
+
 - name: Ensure logrotate is installed
   ansible.builtin.apt:
     name: logrotate

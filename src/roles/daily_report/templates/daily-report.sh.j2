@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 HOSTNAME=$(hostname)
 DATE=$(date)
@@ -95,9 +95,19 @@ fi
 
 # Pending package updates
 if command -v apt >/dev/null 2>&1; then
-  UPDATE_COUNT=$(apt list --upgradable 2>/dev/null | tail -n +2 | wc -l)
+  UPDATE_COUNT=$(apt list --upgradable 2>/dev/null | sed '1d' | wc -l)
 else
   UPDATE_COUNT="N/A"
+fi
+
+# LTS upgrade availability
+if command -v do-release-upgrade >/dev/null 2>&1; then
+  LTS_UPGRADE_CHECK=$(do-release-upgrade -c 2>&1 | grep -E "New release|No new release" || true)
+  if [ -z "$LTS_UPGRADE_CHECK" ]; then
+    LTS_UPGRADE_CHECK="Check failed"
+  fi
+else
+  LTS_UPGRADE_CHECK="do-release-upgrade not installed"
 fi
 
 # Raspberry Pi temperature (if vcgencmd is available)
@@ -182,6 +192,9 @@ $BACKUP_LOG
 
 == Pending Package Updates ==
 $UPDATE_COUNT
+
+== LTS Upgrade Check ==
+$LTS_UPGRADE_CHECK
 
 == Raspberry Pi Firmware Temp ==
 $VCGEN_TEMP

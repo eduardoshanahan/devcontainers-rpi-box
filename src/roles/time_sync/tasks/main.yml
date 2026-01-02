@@ -1,4 +1,15 @@
 ---
+- name: Ensure required time_sync variables are provided
+  ansible.builtin.assert:
+    that:
+      - time_sync_ntp_servers is defined
+      - time_sync_ntp_servers is iterable
+      - time_sync_fallback_servers is defined
+      - time_sync_fallback_servers is iterable
+    fail_msg: >-
+      Define required time_sync_* variables before applying this role.
+  tags: [time_sync]
+
 - name: Ensure systemd-timesyncd is installed
   ansible.builtin.apt:
     name: systemd-timesyncd

@@ -1,6 +1,8 @@
 ---
-log_hygiene_journald_max_use: "200M"
-log_hygiene_journald_keep_free: "100M"
-log_hygiene_journald_max_file_sec: "1month"
-log_hygiene_logrotate_rotate: 7
-log_hygiene_logrotate_frequency: "weekly"
+# No defaults. Define in host_vars/group_vars.
+# Example:
+# log_hygiene_journald_max_use: "200M"
+# log_hygiene_journald_keep_free: "100M"
+# log_hygiene_journald_max_file_sec: "1month"
+# log_hygiene_logrotate_rotate: 7
+# log_hygiene_logrotate_frequency: "weekly"

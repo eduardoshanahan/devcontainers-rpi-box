@@ -1,4 +1,23 @@
 ---
+- name: Ensure required docker_engine variables are provided
+  ansible.builtin.assert:
+    that:
+      - docker_engine_data_root is defined
+      - docker_engine_data_root | length > 0
+      - docker_engine_log_max_size is defined
+      - docker_engine_log_max_size | length > 0
+      - docker_engine_log_max_file is defined
+      - docker_engine_log_max_file | length > 0
+      - docker_engine_users is defined
+      - docker_engine_users | length > 0
+      - docker_engine_apt_release is defined
+      - docker_engine_apt_release | length > 0
+      - docker_engine_version is defined
+      - docker_engine_compose_version is defined
+    fail_msg: >-
+      Define required docker_engine_* variables before applying this role.
+  tags: [docker_engine]
+
 - name: Install Docker apt prerequisites
   ansible.builtin.apt:
     name:
@@ -68,6 +87,10 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
+  register: docker_engine_cache_update
+  retries: 3
+  delay: 5
+  until: docker_engine_cache_update is succeeded
   tags: [docker_engine]
 
 - name: Check Docker apt repo availability
@@ -75,6 +98,9 @@
     cmd: apt-cache policy docker-ce
   register: docker_engine_repo_check
   changed_when: false
+  retries: 5
+  delay: 5
+  until: "'Candidate: (none)' not in docker_engine_repo_check.stdout"
   tags: [docker_engine]
 
 - name: Fail if Docker packages are unavailable
@@ -84,6 +110,111 @@
       update output or set docker_engine_apt_release to a supported Ubuntu
       codename (e.g., jammy).
   when: "'Candidate: (none)' in docker_engine_repo_check.stdout"
+  tags: [docker_engine]
+
+- name: Gather containerd.io candidate from Docker repo
+  ansible.builtin.command:
+    cmd: sh -c "apt-cache policy containerd.io | awk '/Candidate:/ {print $2}'"
+  register: docker_engine_containerd_candidate_raw
+  changed_when: false
+  tags: [docker_engine]
+
+- name: Gather containerd.io version list from Docker repo
+  ansible.builtin.command:
+    cmd: >-
+      sh -c "apt-cache policy containerd.io
+      | sed -n 's/^[[:space:]]*\\([0-9][0-9.]*[^ ]*\\).*/\\1/p'
+      | awk '/\\./'"
+  register: docker_engine_containerd_versions_raw
+  changed_when: false
+  tags: [docker_engine]
+
+- name: Parse containerd.io candidate and version list
+  ansible.builtin.set_fact:
+    docker_engine_containerd_candidate: >-
+      {{ docker_engine_containerd_candidate_raw.stdout | trim }}
+    docker_engine_containerd_versions: >-
+      {{ docker_engine_containerd_versions_raw.stdout_lines
+      | select('string')
+      | map('trim')
+      | select('match', '[0-9]')
+      | list }}
+  tags: [docker_engine]
+
+- name: Fail if containerd.io candidate is unavailable
+  ansible.builtin.fail:
+    msg: >-
+      No containerd.io candidate found in apt policy. Verify repository
+      connectivity and metadata.
+  when: docker_engine_containerd_candidate is not defined or docker_engine_containerd_candidate | length == 0
+  tags: [docker_engine]
+
+- name: Fail if containerd.io versions are unavailable
+  ansible.builtin.fail:
+    msg: >-
+      No containerd.io versions found via apt policy. Verify repository
+      connectivity and metadata.
+  when: docker_engine_containerd_versions | length == 0
+  tags: [docker_engine]
+
+- name: Install containerd.io candidate from Docker repo
+  ansible.builtin.apt:
+    name: "containerd.io={{ docker_engine_containerd_candidate }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 0
+    force_apt_get: true
+  register: docker_engine_containerd_install_attempt
+  ignore_errors: true
+  tags: [docker_engine]
+
+- name: Check installed containerd.io version
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Version}' containerd.io
+  register: docker_engine_containerd_installed_raw
+  changed_when: false
+  failed_when: false
+  tags: [docker_engine]
+
+- name: Record installed containerd.io version (if present)
+  ansible.builtin.set_fact:
+    docker_engine_containerd_installed_version: >-
+      {{ docker_engine_containerd_installed_raw.stdout | trim }}
+  tags: [docker_engine]
+
+- name: Install containerd.io from policy versions (fallback)
+  ansible.builtin.include_tasks: install_containerd_version.yml
+  loop: >-
+    {{ docker_engine_containerd_versions
+    | reject('equalto', docker_engine_containerd_candidate)
+    | list }}
+  loop_control:
+    loop_var: docker_engine_containerd_version
+  when: (docker_engine_containerd_installed_version | default('')) | length == 0
+  tags: [docker_engine]
+
+- name: Re-check installed containerd.io version after fallback
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Version}' containerd.io
+  register: docker_engine_containerd_installed_raw_after
+  changed_when: false
+  failed_when: false
+  when: (docker_engine_containerd_installed_version | default('')) | length == 0
+  tags: [docker_engine]
+
+- name: Record installed containerd.io version after fallback
+  ansible.builtin.set_fact:
+    docker_engine_containerd_installed_version: >-
+      {{ docker_engine_containerd_installed_raw_after.stdout | trim }}
+  when: (docker_engine_containerd_installed_version | default('')) | length == 0
+  tags: [docker_engine]
+
+- name: Fail if containerd.io could not be installed
+  ansible.builtin.fail:
+    msg: >-
+      Failed to install containerd.io from the Docker repo after trying the
+      candidate and fallback versions. The repo may be inconsistent; retry later.
+  when: (docker_engine_containerd_installed_version | default('')) | length == 0
   tags: [docker_engine]
 
 - name: Build Docker package version suffixes
@@ -99,14 +230,19 @@
 - name: Install Docker Engine and plugins
   ansible.builtin.apt:
     name:
+      - "containerd.io={{ docker_engine_containerd_installed_version }}"
       - "docker-ce{{ docker_engine_version_suffix }}"
       - "docker-ce-cli{{ docker_engine_version_suffix }}"
-      - containerd.io
       - docker-buildx-plugin
       - "docker-compose-plugin{{ docker_engine_compose_version_suffix }}"
     state: present
     update_cache: true
-    cache_valid_time: 3600
+    cache_valid_time: 0
+    force_apt_get: true
+  register: docker_engine_install
+  retries: 3
+  delay: 10
+  until: docker_engine_install is succeeded
   tags: [docker_engine]
 
 - name: Ensure docker group users are present

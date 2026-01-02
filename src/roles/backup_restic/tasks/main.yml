@@ -8,9 +8,14 @@
       - backup_restic_src | length > 0
       - backup_restic_password is defined
       - backup_restic_password | length > 0
+      - backup_restic_retention_days is defined
+      - backup_restic_retention_weeks is defined
+      - backup_restic_retention_months is defined
+      - backup_restic_timer_schedule is defined
+      - backup_restic_timer_schedule | length > 0
     fail_msg: >-
-      Define required backup_restic_* variables (repo, src, password)
-      before applying this role.
+      Define required backup_restic_* variables (repo, src, password, retention,
+      timer schedule) before applying this role.
 
 - name: Install Restic
   ansible.builtin.apt:
