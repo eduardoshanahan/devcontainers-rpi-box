@@ -1,4 +1,13 @@
 ---
+- name: Ensure required storage_layout variables are provided
+  ansible.builtin.assert:
+    that:
+      - storage_layout_directories is defined
+      - storage_layout_directories | length > 0
+    fail_msg: >-
+      Define required storage_layout_* variables before applying this role.
+  tags: [storage_layout]
+
 - name: Ensure storage directories exist
   ansible.builtin.file:
     path: "{{ item.path }}"

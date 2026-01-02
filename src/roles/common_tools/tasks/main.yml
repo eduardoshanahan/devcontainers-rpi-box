@@ -1,4 +1,13 @@
 ---
+- name: Ensure required common_tools variables are provided
+  ansible.builtin.assert:
+    that:
+      - common_tools_packages is defined
+      - common_tools_packages | length > 0
+    fail_msg: >-
+      Define required common_tools_packages before applying this role.
+  tags: [common_tools]
+
 - name: Gather installed packages
   ansible.builtin.package_facts:
     manager: auto
