@@ -1,7 +1,8 @@
 ---
-# Example host_vars for the Raspberry Pi target.
-# Copy this to rpi_box.yml (kept out of git via .gitignore) and customize
-# values.
+# Example host_vars for a Raspberry Pi target.
+# Copy this file to rpi_box_01.yml, rpi_box_02.yml, and rpi_box_03.yml
+# (kept out of git via .gitignore) and customize values.
+
 ansible_host: "192.0.2.10"
 ansible_port: 22
 # SSH connection user and private key used by Ansible
@@ -9,13 +10,13 @@ ansible_user: "CHANGE_ME"
 ansible_ssh_private_key_file: "~/.ssh/CHANGE_ME"
 
 # Admin user provisioned on the Pi and its public key
-pi_base_admin_user: "{{ ansible_user }}"
+pi_base_admin_user: "CHANGE_ME"
 pi_base_admin_ssh_public_key_file: "~/.ssh/CHANGE_ME.pub"
 pi_base_hostname: "rpi-box-01"
 pi_base_timezone: "Europe/Dublin"
 pi_base_locale: "en_IE.UTF-8"
-pi_base_disable_resolved_stub: >-
-  {{ lookup('env', 'PI_BASE_DISABLE_RESOLVED_STUB') | bool }}
+pi_base_disable_resolved_stub: false
+pi_base_resolv_conf_target: "/run/systemd/resolve/resolv.conf"
 docker_engine_apt_release: jammy
 
 # Daily report scheduling and email settings (msmtp)
@@ -27,11 +28,87 @@ daily_report_service_name: "daily-report"
 daily_report_smtp_host: "smtp.example.com"
 daily_report_smtp_port: 587
 daily_report_smtp_user: "user@example.com"
-daily_report_smtp_password: "CHANGE_ME"
-daily_report_user: "{{ ansible_user }}"
+daily_report_smtp_password: "CHANGEME"
+daily_report_user: "CHANGE_ME"
 daily_report_msmtp_log_path: "/var/log/msmtp/msmtp.log"
+
+# Fail2ban configuration
+fail2ban_base_bantime: "1h"
+fail2ban_base_findtime: "10m"
+fail2ban_base_maxretry: 5
+fail2ban_base_ignoreip:
+  - "127.0.0.1/8"
+  - "::1"
+fail2ban_base_backend: "systemd"
+
+# Time sync configuration
+time_sync_ntp_servers:
+  - "pool.ntp.org"
+time_sync_fallback_servers:
+  - "time.cloudflare.com"
+
+# Log hygiene configuration
+log_hygiene_journald_max_use: "200M"
+log_hygiene_journald_keep_free: "100M"
+log_hygiene_journald_max_file_sec: "1month"
+log_hygiene_logrotate_rotate: 7
+log_hygiene_logrotate_frequency: "weekly"
+
+# Node exporter configuration
+node_exporter_listen_address: "0.0.0.0:9100"
+
+# Storage layout configuration
+storage_layout_directories:
+  - path: "/srv/apps"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  - path: "/srv/docker"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+# Docker engine configuration
+docker_engine_data_root: "/srv/docker"
+docker_engine_log_max_size: "10m"
+docker_engine_log_max_file: "3"
+docker_engine_users:
+  - "CHANGE_ME"
+docker_engine_version: ""
+docker_engine_compose_version: ""
+
+# Docker prune configuration
+docker_prune_schedule: "weekly"
+docker_prune_command: "/usr/bin/docker system prune --all --force"
+docker_prune_service_name: "docker-prune"
+
+# Common tools configuration
+common_tools_packages:
+  - "curl"
+  - "git"
+  - "nano"
+  - "tmux"
+  - "htop"
+  - "rsync"
+  - "unzip"
+  - "jq"
+  - "dnsutils"
+  - "iotop"
+  - "iftop"
+  - "nload"
+  - "net-tools"
+  - "vnstat"
+  - "needrestart"
+  - "ncdu"
+  - "tcpdump"
+  - "lsof"
+  - "strace"
 
 # Backup configuration (Restic)
 backup_restic_repo: "/mnt/backup/restic-repo"
 backup_restic_src: "/srv/docker"
-backup_restic_password: "CHANGE_ME"
+backup_restic_password: "CHANGEME"
+backup_restic_retention_days: 7
+backup_restic_retention_weeks: 4
+backup_restic_retention_months: 6
+backup_restic_timer_schedule: "daily"
