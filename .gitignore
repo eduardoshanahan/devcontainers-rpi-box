@@ -17,6 +17,7 @@
 .devcontainer/.onCreateCommandMarker
 .devcontainer/.updateContentCommandMarker
 .devcontainer/.postCreateCommandMarker
+.devcontainer/.postStartCommandMarker
 
 # Logs
 logs
