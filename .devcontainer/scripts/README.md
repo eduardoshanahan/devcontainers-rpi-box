@@ -66,6 +66,21 @@ Validates environment variables:
 - Provides detailed error messages
 - Returns non-zero exit code on validation failure
 
+## Root Launchers
+
+Two root-level launchers are available alongside `launch.sh` for CLI workflows:
+
+- `devcontainer-launch.sh`: starts the devcontainer CLI and opens an interactive shell.
+- `claude-launch.sh`: starts the devcontainer CLI and launches Claude Code inside the container.
+
+Both scripts:
+
+- Load `.env` via `env-loader.sh`
+- Validate configuration via `validate-env.sh`
+- Create a unique container name for CLI sessions to avoid conflicts
+- Support `KEEP_CONTAINER=1` to leave the container running after exit
+- Support `REBUILD_CONTAINER=1` to rebuild and restart the container before launch
+
 ## Usage
 
 These scripts are automatically sourced and executed as part of the container setup process. They are designed to work together to provide a consistent development environment.

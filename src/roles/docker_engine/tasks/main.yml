@@ -146,7 +146,9 @@
     msg: >-
       No containerd.io candidate found in apt policy. Verify repository
       connectivity and metadata.
-  when: docker_engine_containerd_candidate is not defined or docker_engine_containerd_candidate | length == 0
+  when:
+    - docker_engine_containerd_candidate is not defined
+      or docker_engine_containerd_candidate | length == 0
   tags: [docker_engine]
 
 - name: Fail if containerd.io versions are unavailable
@@ -213,7 +215,8 @@
   ansible.builtin.fail:
     msg: >-
       Failed to install containerd.io from the Docker repo after trying the
-      candidate and fallback versions. The repo may be inconsistent; retry later.
+      candidate and fallback versions. The repo may be inconsistent; retry
+      later.
   when: (docker_engine_containerd_installed_version | default('')) | length == 0
   tags: [docker_engine]
 
