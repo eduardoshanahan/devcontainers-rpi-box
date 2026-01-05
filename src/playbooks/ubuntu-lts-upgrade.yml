@@ -42,7 +42,8 @@
       tags: [lts_upgrade]
 
     - name: Run the non-interactive LTS upgrade (expect a disconnect/reboot)
-      ansible.builtin.command: do-release-upgrade -f DistUpgradeViewNonInteractive
+      ansible.builtin.command: >-
+        do-release-upgrade -f DistUpgradeViewNonInteractive
       environment:
         DEBIAN_FRONTEND: noninteractive
       tags: [lts_upgrade]

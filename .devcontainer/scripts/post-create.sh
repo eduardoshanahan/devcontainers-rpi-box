@@ -89,6 +89,35 @@ if ! grep -qE "(^|[[:space:]])(\.|source)[[:space:]]+/workspace/.devcontainer/sc
     printf '%s\n' ". /workspace/.devcontainer/scripts/ssh-agent-setup.sh" >> "$HOME/.bashrc"
 fi
 
+# Add ~/.local/bin to PATH for Claude and other user tools
+if ! grep -qE '(^|:)\$HOME/\.local/bin(:|$)' "$HOME/.bashrc"; then
+    printf '%s\n' 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+fi
+
+# Install Claude Code (optional)
+printf '%s\n' "Installing Claude Code..."
+export PATH="$HOME/.local/bin:$PATH"
+if [ "${SKIP_CLAUDE_INSTALL:-}" = "1" ] || [ "${SKIP_CLAUDE_INSTALL:-}" = "true" ]; then
+    printf '%s\n' "Skipping Claude Code install (SKIP_CLAUDE_INSTALL is set)"
+elif ! command -v claude >/dev/null 2>&1; then
+    if command -v bash >/dev/null 2>&1; then
+        if command -v timeout >/dev/null 2>&1; then
+            timeout 300s bash -c 'curl -fsSL https://claude.ai/install.sh | bash' || \
+                printf '%s\n' "Claude Code install timed out or failed; re-run post-create to try again."
+        else
+            bash -c 'curl -fsSL https://claude.ai/install.sh | bash' || \
+                printf '%s\n' "Claude Code install failed; re-run post-create to try again."
+        fi
+    else
+        printf '%s\n' "Bash not found; skipping Claude Code install."
+    fi
+    if command -v claude >/dev/null 2>&1; then
+        printf '%s\n' "Claude Code installed successfully!"
+    fi
+else
+    printf '%s\n' "Claude Code already installed ($(claude --version 2>/dev/null || echo 'version unknown'))"
+fi
+
 # Ensure login shells also inherit the alias setup by sourcing .bashrc
 ensure_profile_sources_bashrc() {
     profile_file="$1"
