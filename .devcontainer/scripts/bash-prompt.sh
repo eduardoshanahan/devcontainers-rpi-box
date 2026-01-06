@@ -2,6 +2,11 @@
 
 # Enable Starship prompt first
 if command -v starship >/dev/null 2>&1; then
+    if [ -f "/workspace/.devcontainer/config/starship.toml" ]; then
+        export STARSHIP_CONFIG="/workspace/.devcontainer/config/starship.toml"
+        mkdir -p "$HOME/.config"
+        cp "$STARSHIP_CONFIG" "$HOME/.config/starship.toml"
+    fi
     eval "$(starship init bash)"
 fi
 

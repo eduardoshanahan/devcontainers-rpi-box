@@ -38,7 +38,7 @@ Main initialization script that:
 
 Runs after container creation to:
 
-- Source and validate environment variables
+- Source environment variables
 - Configure Git user information
 - Make scripts executable
 - Set up bashrc with required script sources
@@ -60,8 +60,8 @@ Manages SSH agent configuration:
 
 Validates environment variables:
 
-- Checks required variables (HOST_USERNAME, HOST_UID, HOST_GID)
-- Validates optional variables with defaults
+- Checks required variables (project, host, Git identity, editor, container resources, Ansible versions)
+- Validates optional variables (currently: `GIT_REMOTE_URL`)
 - Uses regex patterns for validation
 - Provides detailed error messages
 - Returns non-zero exit code on validation failure
@@ -102,7 +102,7 @@ chmod +x /workspace/.devcontainer/scripts/init-devcontainer.sh
 The scripts have the following dependencies:
 
 - `colors.sh` is sourced by other scripts for colored output
-- `validate-env.sh` is called by `launch.sh` and `post-create.sh`
+- `validate-env.sh` is called by `launch.sh`, `devcontainer-launch.sh`, and `claude-launch.sh`
 - `bash-prompt.sh` and `ssh-agent-setup.sh` are sourced in bashrc
 
 ## Customization

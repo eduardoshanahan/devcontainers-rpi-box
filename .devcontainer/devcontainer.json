@@ -18,8 +18,7 @@
                 "ansible.ansible.path": "/usr/local/bin/ansible",
                 "ansible.python.interpreterPath": "/usr/bin/python3",
                 "ansible.validation.lint.enabled": true,
-                "ansible.validation.lint.path": "/usr/local/bin/ansible-lint",
-                "ansible.validation.lint.configFile": "/workspace/.ansible-lint",
+                "ansible.validation.lint.path": "ansible-lint",
                 "editor.acceptSuggestionOnTab": false,
                 "editor.tabCompletion": "off",
                 "editor.acceptSuggestionOnEnter": "off",
@@ -60,25 +59,24 @@
     "postCreateCommand": "chmod +x ~/.devcontainer/scripts/post-create.sh && ~/.devcontainer/scripts/post-create.sh",
     "initializeCommand": "export CONTAINER_MEMORY=${localEnv:CONTAINER_MEMORY} && export CONTAINER_CPUS=${localEnv:CONTAINER_CPUS} && export CONTAINER_SHM_SIZE=${localEnv:CONTAINER_SHM_SIZE} && export CONTAINER_HOSTNAME=${localEnv:CONTAINER_HOSTNAME}",
     "containerEnv": {
-        "PROJECT_NAME": "${localEnv:PROJECT_NAME}",
         "USERNAME": "${localEnv:HOST_USERNAME}",
         "USER_UID": "${localEnv:HOST_UID}",
         "USER_GID": "${localEnv:HOST_GID}",
         "CONTAINER_HOSTNAME": "${localEnv:CONTAINER_HOSTNAME}",
-        "EDITOR_CHOICE": "${localEnv:EDITOR_CHOICE}",
         "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
         "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}",
         "GIT_REMOTE_URL": "${localEnv:GIT_REMOTE_URL}",
-        "ANSIBLE_CONFIG": "${localEnv:ANSIBLE_CONFIG}",
         "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME}",
         "DOCKER_IMAGE_TAG": "${localEnv:DOCKER_IMAGE_TAG}",
-        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+        "ANSIBLE_CONFIG": "/workspace/src/ansible.cfg",
+        "ANSIBLE_INVENTORY": "/workspace/src/inventory",
+        "ANSIBLE_COLLECTIONS_PATH": "/workspace/src/collections:/home/${localEnv:HOST_USERNAME}/.ansible/collections",
+        "ANSIBLE_ROLES_PATH": "/workspace/src/roles"
     },
     "runArgs": [
         "--name=${localEnv:DOCKER_IMAGE_NAME}",
         "--hostname=${localEnv:CONTAINER_HOSTNAME}",
         "--env-file=${localWorkspaceFolder}/.env",
-        "--env-file=${localWorkspaceFolder}/.devcontainer/config/.env",
         "--env=SSH_AUTH_SOCK=${localEnv:SSH_AUTH_SOCK}",
         "--memory=${localEnv:CONTAINER_MEMORY}",
         "--cpus=${localEnv:CONTAINER_CPUS}",
@@ -86,7 +84,6 @@
     ],
     "forwardPorts": [],
     "remoteEnv": {
-        "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}",
-        "PATH": "/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
+        "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
     }
 }

@@ -7,6 +7,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ca-certificates \
     curl \
     git \
+    git-filter-repo \
     jq \
     locales \
     openssh-client \
@@ -53,6 +54,17 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Ensure bash is the default shell for the user
 RUN chsh -s /bin/bash $USERNAME
+
+# Ensure prompt setup is sourced in interactive shells
+RUN printf '\n# Devcontainer prompt\nif [ -f /workspace/.devcontainer/scripts/bash-prompt.sh ]; then\n  . /workspace/.devcontainer/scripts/bash-prompt.sh\nfi\n' >> /etc/bash.bashrc
+
+# Ensure login shells also source the prompt setup
+RUN printf '%s\n' '#!/bin/sh' \
+    'if [ -f /workspace/.devcontainer/scripts/bash-prompt.sh ]; then' \
+    '  . /workspace/.devcontainer/scripts/bash-prompt.sh' \
+    'fi' \
+    > /etc/profile.d/devcontainer-prompt.sh \
+    && chmod 0644 /etc/profile.d/devcontainer-prompt.sh
 
 # Set ownership of workspace
 RUN chown $USERNAME:$USERNAME /workspace
