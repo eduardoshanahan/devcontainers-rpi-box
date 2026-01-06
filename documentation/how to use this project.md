@@ -16,10 +16,12 @@ This living document captures the workflow for operating the Raspberry Pi auto
    - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
    - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
    - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
-   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
-   - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
-   - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
-   - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
+  - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
+  - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
+  - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
+  - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
+  - `BACKUP_RESTIC_RETENTION_DAYS`, `BACKUP_RESTIC_RETENTION_WEEKS`, `BACKUP_RESTIC_RETENTION_MONTHS`
+  - `BACKUP_RESTIC_TIMER_SCHEDULE`
 
 The devcontainer loads these variables from `.env`, so keeping them here makes the configuration obvious and versioned via `.env.example`.
 
@@ -107,6 +109,9 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
      - `BACKUP_RESTIC_REPO` / `backup_restic_repo`
      - `BACKUP_RESTIC_SRC` / `backup_restic_src`
      - `BACKUP_RESTIC_PASSWORD` / `backup_restic_password`
+     - `BACKUP_RESTIC_RETENTION_DAYS` / `backup_restic_retention_days`
+     - `BACKUP_RESTIC_RETENTION_WEEKS` / `backup_restic_retention_weeks`
+     - `BACKUP_RESTIC_RETENTION_MONTHS` / `backup_restic_retention_months`
      - `BACKUP_RESTIC_TIMER_SCHEDULE` / `backup_restic_timer_schedule`
    - Ensure the backup destination is mounted and writable before running the playbook.
 
