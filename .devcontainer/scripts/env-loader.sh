@@ -1,5 +1,5 @@
 #!/bin/sh
-# Shared env loader: load project-root .env (authoritative) then fill missing from .devcontainer/config/.env
+# Shared env loader: load project-root .env (authoritative)
 # Usage:
 #   # from inside container: . /workspace/.devcontainer/scripts/env-loader.sh && load_project_env /workspace [debug]
 #   # from host script: . "$PROJECT_DIR/.devcontainer/scripts/env-loader.sh" && load_project_env "$PROJECT_DIR" [debug]
@@ -23,8 +23,6 @@ load_project_env() {
     fi
 
     project_env="$env_loader_workspace_dir/.env"
-    dev_env="$env_loader_workspace_dir/.devcontainer/config/.env"
-
     # Capture current variables
     before_file="$(mktemp)"
     env | cut -d= -f1 | sort > "$before_file"
@@ -35,24 +33,6 @@ load_project_env() {
         # shellcheck disable=SC1090
         . "$project_env"
         set +a
-    fi
-
-    # Fill missing variables from devcontainer config without overwriting existing ones
-    if [ -f "$dev_env" ]; then
-        while IFS= read -r line || [ -n "$line" ]; do
-            # Trim whitespace
-            trimmed="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-            # Skip blank lines and comments
-            [ -z "$trimmed" ] && continue
-            case "$trimmed" in \#*) continue ;; esac
-            key="${trimmed%%=*}"
-            key="$(printf '%s' "$key" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-            eval "current_value=\${$key-}"
-            if [ -z "$current_value" ]; then
-                # Preserve quoting in value
-                eval "export $trimmed"
-            fi
-        done < "$dev_env"
     fi
 
     # Capture after state and compute newly added variables

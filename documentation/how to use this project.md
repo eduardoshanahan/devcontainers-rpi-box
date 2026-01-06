@@ -107,6 +107,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
      - `BACKUP_RESTIC_REPO` / `backup_restic_repo`
      - `BACKUP_RESTIC_SRC` / `backup_restic_src`
      - `BACKUP_RESTIC_PASSWORD` / `backup_restic_password`
+     - `BACKUP_RESTIC_TIMER_SCHEDULE` / `backup_restic_timer_schedule`
    - Ensure the backup destination is mounted and writable before running the playbook.
 
 ## 3. Verify Ansible Connectivity
@@ -135,7 +136,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    ansible-playbook playbooks/pi-base.yml
    ```
 
-2. The play targets the `[raspberry_pi]` inventory group. Limit to a single host (e.g., `-l rpi_box_01`) if you add more Pis later.
+2. The play targets the `[raspberry_pi_boxes]` inventory group. Limit to a single host (e.g., `-l rpi_box_01`) if you add more Pis later.
 3. Docker packages are installed from Docker's apt repo. If a transient repo mismatch occurs (for example, a containerd.io candidate is missing), the playbook will fall back to the next available version and you can re-run later to converge.
 
 ## 5. Upgrade to the latest Ubuntu LTS (manual playbook)

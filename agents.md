@@ -192,6 +192,14 @@ If a required environment variable is missing:
 - Minimal layers
 - Clear separation between build-time and runtime config
 
+### Markdown
+
+- No emoji characters in markdown content; use text alternatives instead
+
+### Shell Scripts
+
+- Script filenames use kebab-case (hyphen) for consistency
+
 ---
 
 ## 8. Tooling & Execution Assumptions
@@ -223,6 +231,7 @@ If a required environment variable is missing:
   - failure conditions
 - Prefer concise, factual documentation
 - No marketing language
+- Keep `lm/` state, plan, and recap files updated when code or documentation changes.
 
 ---
 

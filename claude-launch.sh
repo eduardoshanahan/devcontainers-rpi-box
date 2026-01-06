@@ -57,6 +57,16 @@ if ! command -v devcontainer >/dev/null 2>&1; then
   exit 1
 fi
 
+# Check if Docker is installed and running
+if ! command -v docker >/dev/null 2>&1; then
+  error "Docker is not installed!"
+  exit 1
+fi
+if ! docker info >/dev/null 2>&1; then
+  error "Docker does not appear to be running. Start the Docker daemon and try again."
+  exit 1
+fi
+
 # Export variables for devcontainer
 export HOST_USERNAME
 export HOST_UID
