@@ -12,6 +12,26 @@
       Define required docker_prune_* variables before applying this role.
   tags: [docker_prune]
 
+- name: Verify Docker CLI is installed
+  ansible.builtin.command:
+    cmd: docker --version
+  changed_when: false
+  tags: [docker_prune]
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+  tags: [docker_prune]
+
+- name: Fail if Docker service is not running
+  ansible.builtin.assert:
+    that:
+      - "'docker.service' in ansible_facts.services"
+      - ansible_facts.services['docker.service'].state == 'running'
+    fail_msg: >-
+      Docker service is not running. Install/start Docker before applying
+      docker_prune.
+  tags: [docker_prune]
+
 - name: Create systemd service unit
   ansible.builtin.template:
     src: docker-prune.service.j2

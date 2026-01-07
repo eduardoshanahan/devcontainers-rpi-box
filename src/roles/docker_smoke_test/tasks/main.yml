@@ -1,4 +1,36 @@
 ---
+- name: Verify Docker CLI is installed
+  ansible.builtin.command:
+    cmd: docker --version
+  changed_when: false
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Fail if Docker service is not running
+  ansible.builtin.assert:
+    that:
+      - "'docker.service' in ansible_facts.services"
+      - ansible_facts.services['docker.service'].state == 'running'
+    fail_msg: >-
+      Docker service is not running. Install/start Docker before applying
+      docker_smoke_test.
+
+- name: Verify Docker Compose v2 is available
+  ansible.builtin.command:
+    cmd: docker compose version
+  changed_when: false
+  register: docker_smoke_test_compose_check
+  failed_when: false
+
+- name: Fail if Docker Compose v2 is missing
+  ansible.builtin.assert:
+    that:
+      - docker_smoke_test_compose_check.rc == 0
+    fail_msg: >-
+      Docker Compose v2 is not available. Install the docker-compose-plugin
+      package before applying docker_smoke_test.
+
 - name: Ensure smoke test directory exists
   ansible.builtin.file:
     path: /srv/docker/smoke-test

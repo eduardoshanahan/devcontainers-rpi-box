@@ -129,6 +129,9 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - Re-check the `ansible_user`/SSH key path in `src/inventory/host_vars/rpi_box_01.yml`.
    - Ensure your SSH agent has the corresponding private key loaded (`ssh-add -l`).
 3. If you change hostnames in `inventory/hosts.ini`, make sure the filename inside `src/inventory/host_vars/` matches (e.g., `rpi_box_01.yml` for `rpi_box_01`). Use `ansible all --list-hosts` to confirm inventory parsing before running a play.
+4. SSH host key checking is enabled by default. If you are bootstrapping a new host
+   or rotating keys, update `~/.ssh/known_hosts` on the control machine or set
+   `ANSIBLE_HOST_KEY_CHECKING=False` for that session.
 
 ## 4. Update the Raspberry Pi Base OS
 
@@ -143,6 +146,16 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 
 2. The play targets the `[raspberry_pi_boxes]` inventory group. Limit to a single host (e.g., `-l rpi_box_01`) if you add more Pis later.
 3. Docker packages are installed from Docker's apt repo. If a transient repo mismatch occurs (for example, a containerd.io candidate is missing), the playbook will fall back to the next available version and you can re-run later to converge.
+4. The `docker_smoke_test` role requires the Docker service running and the
+   Compose V2 plugin (`docker-compose-plugin`) installed. Confirm both before
+   running if you are applying roles individually.
+5. After the base playbook completes, run the verification playbook to confirm
+   services and config files are in place:
+
+   ```bash
+   cd src
+   ansible-playbook playbooks/deployment-verify.yml -l rpi_box_01
+   ```
 
 ## 5. Upgrade to the latest Ubuntu LTS (manual playbook)
 

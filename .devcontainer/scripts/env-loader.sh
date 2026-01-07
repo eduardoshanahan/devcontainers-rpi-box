@@ -23,8 +23,27 @@ load_project_env() {
     fi
 
     project_env="$env_loader_workspace_dir/.env"
+
+    make_temp_file() {
+        tmp_dir="${TMPDIR:-/tmp}"
+        umask 077
+        i=0
+        while :; do
+            i=$((i + 1))
+            path="${tmp_dir}/env-loader.$$.$i"
+            if (set -C; : > "$path") 2>/dev/null; then
+                printf '%s' "$path"
+                return 0
+            fi
+            [ "$i" -ge 100 ] && return 1
+        done
+    }
     # Capture current variables
-    before_file="$(mktemp)"
+    before_file="$(make_temp_file)"
+    if [ -z "$before_file" ]; then
+        echo "Error: failed to create temp file for env snapshot" >&2
+        return 1
+    fi
     env | cut -d= -f1 | sort > "$before_file"
 
     # Load project root .env first (authoritative); preserve quoting
@@ -36,7 +55,12 @@ load_project_env() {
     fi
 
     # Capture after state and compute newly added variables
-    after_file="$(mktemp)"
+    after_file="$(make_temp_file)"
+    if [ -z "$after_file" ]; then
+        rm -f "$before_file" 2>/dev/null || true
+        echo "Error: failed to create temp file for env snapshot" >&2
+        return 1
+    fi
     env | cut -d= -f1 | sort > "$after_file"
 
     if [ "$env_loader_debug" = "1" ] || [ "$env_loader_debug" = "true" ]; then

@@ -11,6 +11,15 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
   ansible-playbook playbooks/pi-base.yml -l rpi_box_01
   ```
 
+## Deployment Verification
+
+- Run the verification playbook (requires sudo, use `-b` if running ad-hoc):
+
+  ```bash
+  cd src
+  ansible-playbook playbooks/deployment-verify.yml -l rpi_box_01
+  ```
+
 ## Smoke Script
 
 - Run the smoke tests against all Raspberry Pi hosts:
@@ -124,4 +133,15 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
   ```bash
   ansible rpi_box_01 -m command -a "docker --version" -b
   ansible rpi_box_01 -m command -a "containerd --version" -b
+  ```
+
+## Docker Smoke Test
+
+- The `docker_smoke_test` role requires the Docker service running and the
+  Compose V2 plugin (`docker-compose-plugin`) installed. Validate both before
+  running the playbook (requires sudo, use `-b`):
+
+  ```bash
+  ansible rpi_box_01 -m command -a "systemctl status docker --no-pager" -b
+  ansible rpi_box_01 -m command -a "docker compose version" -b
   ```

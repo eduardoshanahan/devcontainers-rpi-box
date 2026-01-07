@@ -1,0 +1,100 @@
+---
+- name: Ensure required deployment_verify variables are provided
+  ansible.builtin.assert:
+    that:
+      - daily_report_service_name is defined
+      - daily_report_service_name | length > 0
+      - daily_report_script_path is defined
+      - daily_report_script_path | length > 0
+      - daily_report_msmtp_log_path is defined
+      - daily_report_msmtp_log_path | length > 0
+      - docker_prune_service_name is defined
+      - docker_prune_service_name | length > 0
+      - storage_layout_directories is defined
+      - storage_layout_directories | length > 0
+    fail_msg: >-
+      Define required deployment_verify variables (daily_report_*, docker_prune_*,
+      storage_layout_directories) before applying this role.
+  tags: [deployment_verify]
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+  tags: [deployment_verify]
+
+- name: Fail if required services are not running
+  ansible.builtin.assert:
+    that:
+      - item in ansible_facts.services
+      - ansible_facts.services[item].state == 'running'
+    fail_msg: "Required service is not running: {{ item }}"
+  vars:
+    deployment_verify_required_services:
+      - docker.service
+      - containerd.service
+      - fail2ban.service
+      - systemd-timesyncd.service
+      - prometheus-node-exporter.service
+      - "{{ daily_report_service_name }}.timer"
+      - "{{ docker_prune_service_name }}.timer"
+      - rpi-backup.timer
+  loop: "{{ deployment_verify_required_services }}"
+  tags: [deployment_verify]
+
+- name: Verify Docker Compose v2 is available
+  ansible.builtin.command:
+    cmd: docker compose version
+  register: deployment_verify_compose_check
+  changed_when: false
+  failed_when: false
+  tags: [deployment_verify]
+
+- name: Fail if Docker Compose v2 is missing
+  ansible.builtin.assert:
+    that:
+      - deployment_verify_compose_check.rc == 0
+    fail_msg: >-
+      Docker Compose v2 is not available. Install the docker-compose-plugin
+      package before running deployment verification.
+  tags: [deployment_verify]
+
+- name: Check required config files exist
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/fail2ban/jail.d/sshd.local
+    - /etc/systemd/journald.conf.d/99-log-hygiene.conf
+    - /etc/logrotate.d/rpi-base
+    - /etc/docker/daemon.json
+    - /etc/msmtprc
+    - /etc/msmtp.aliases
+    - "{{ daily_report_script_path }}"
+    - "{{ daily_report_msmtp_log_path }}"
+    - /usr/local/bin/rpi-backup.sh
+    - /srv/docker/smoke-test/docker-compose.yml
+  register: deployment_verify_file_stats
+  tags: [deployment_verify]
+
+- name: Fail if required config files are missing
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.isreg
+    fail_msg: "Required file is missing or not a regular file: {{ item.stat.path }}"
+  loop: "{{ deployment_verify_file_stats.results }}"
+  tags: [deployment_verify]
+
+- name: Check storage directories exist
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+  loop: "{{ storage_layout_directories }}"
+  register: deployment_verify_storage_stats
+  tags: [deployment_verify]
+
+- name: Fail if storage directories are missing
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.isdir
+    fail_msg: "Storage directory is missing or not a directory: {{ item.stat.path }}"
+  loop: "{{ deployment_verify_storage_stats.results }}"
+  tags: [deployment_verify]

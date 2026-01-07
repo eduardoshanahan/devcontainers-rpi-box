@@ -49,6 +49,22 @@
     fail_msg: "Define required pi_base_* variables before applying this role."
   tags: [pi_base, access]
 
+- name: Check admin SSH public key file exists
+  ansible.builtin.stat:
+    path: "{{ pi_base_admin_ssh_public_key_file }}"
+  register: pi_base_admin_ssh_key_stat
+  tags: [pi_base, access]
+
+- name: Fail if admin SSH public key file is missing
+  ansible.builtin.assert:
+    that:
+      - pi_base_admin_ssh_key_stat.stat.exists
+      - pi_base_admin_ssh_key_stat.stat.isreg
+    fail_msg: >-
+      Admin SSH public key file not found or not a regular file:
+      {{ pi_base_admin_ssh_public_key_file }}
+  tags: [pi_base, access]
+
 - name: Load admin SSH public key from file
   ansible.builtin.set_fact:
     pi_base_admin_ssh_public_key: >-
