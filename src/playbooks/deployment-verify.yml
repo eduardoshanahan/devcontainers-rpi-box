@@ -1,0 +1,7 @@
+---
+- name: Verify Raspberry Pi deployment
+  hosts: raspberry_pi_boxes
+  become: true
+  gather_facts: true
+  roles:
+    - deployment_verify

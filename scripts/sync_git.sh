@@ -28,6 +28,21 @@ fi
 . "$ENV_LOADER"
 load_project_env "$PROJECT_DIR"
 
+make_temp_file() {
+    tmp_dir="${TMPDIR:-/tmp}"
+    umask 077
+    i=0
+    while :; do
+        i=$((i + 1))
+        path="${tmp_dir}/sync-git.$$.$i"
+        if (set -C; : > "$path") 2>/dev/null; then
+            printf '%s' "$path"
+            return 0
+        fi
+        [ "$i" -ge 100 ] && return 1
+    done
+}
+
 require_env_set() {
     var_name="$1"
     eval "value=\${$var_name+x}"
@@ -50,8 +65,13 @@ normalize_list() {
     printf '%s\n' "$1" | tr ',' ' ' | tr -s ' ' '\n' | awk 'NF && !seen[$0]++'
 }
 
-REMOTE_LIST_FILE="$(mktemp)"
-PUSH_TARGETS_FILE="$(mktemp)"
+REMOTE_LIST_FILE="$(make_temp_file)"
+PUSH_TARGETS_FILE="$(make_temp_file)"
+
+if [ -z "$REMOTE_LIST_FILE" ] || [ -z "$PUSH_TARGETS_FILE" ]; then
+    error "Failed to create temporary files."
+    exit 1
+fi
 
 cleanup() {
     rm -f "$REMOTE_LIST_FILE" "$PUSH_TARGETS_FILE" 2>/dev/null || true

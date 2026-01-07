@@ -7,7 +7,7 @@ if command -v starship >/dev/null 2>&1; then
         mkdir -p "$HOME/.config"
         cp "$STARSHIP_CONFIG" "$HOME/.config/starship.toml"
     fi
-    eval "$(starship init bash)"
+    eval "$(starship init sh)"
 fi
 
 # Load environment variables using shared loader (try workspace first)
@@ -61,6 +61,3 @@ alias jsonlint='jq "."'
 alias jsonformat='jq "."'
 alias jsonvalidate='jq empty'
 alias jsonpretty='jq "."'
-
-# Export SHELL variable to ensure bash is used
-export SHELL=/bin/bash

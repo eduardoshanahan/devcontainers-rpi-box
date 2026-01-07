@@ -7,6 +7,36 @@ ANSIBLE_ROOT="${REPO_ROOT}/src"
 ANSIBLE_CFG="${ANSIBLE_ROOT}/ansible.cfg"
 INVENTORY_DIR="${ANSIBLE_ROOT}/inventory"
 
+make_temp_file() {
+    tmp_dir="${TMPDIR:-/tmp}"
+    umask 077
+    i=0
+    while :; do
+        i=$((i + 1))
+        path="${tmp_dir}/ansible-smoke.$$.$i"
+        if (set -C; : > "$path") 2>/dev/null; then
+            printf '%s' "$path"
+            return 0
+        fi
+        [ "$i" -ge 100 ] && return 1
+    done
+}
+
+make_temp_dir() {
+    tmp_dir="${TMPDIR:-/tmp}"
+    umask 077
+    i=0
+    while :; do
+        i=$((i + 1))
+        path="${tmp_dir}/ansible-smoke.$$.$i.d"
+        if mkdir "$path" 2>/dev/null; then
+            printf '%s' "$path"
+            return 0
+        fi
+        [ "$i" -ge 100 ] && return 1
+    done
+}
+
 if [ $# -lt 2 ]; then
     printf 'Usage: %s /path/to/playbook.yml /path/to/inventory.ini\n' "$0" >&2
     printf 'Optional: set SMOKE_GROUP to override the default host group (default: raspberry_pi_boxes).\n' >&2
@@ -48,11 +78,18 @@ fi
 
 run_playbook() {
     smoke_label="$1"
-    output_file="$(mktemp)"
-    output_fifo="$(mktemp -u)"
+    output_file="$(make_temp_file)"
+    fifo_dir="$(make_temp_dir)"
+    output_fifo="$fifo_dir/output.fifo"
+
+    if [ -z "$output_file" ] || [ -z "$fifo_dir" ]; then
+        printf '%s\n' "Failed to create temporary files for output streaming." >&2
+        return 1
+    fi
 
     cleanup_fifo() {
         rm -f "$output_fifo" 2>/dev/null || true
+        rmdir "$fifo_dir" 2>/dev/null || true
     }
     trap cleanup_fifo EXIT HUP INT TERM
 
@@ -71,6 +108,7 @@ run_playbook() {
 
     wait "$tee_pid" 2>/dev/null || true
     rm -f "$output_fifo"
+    rmdir "$fifo_dir" 2>/dev/null || true
     trap - EXIT HUP INT TERM
 
     if [ "$play_rc" -ne 0 ]; then

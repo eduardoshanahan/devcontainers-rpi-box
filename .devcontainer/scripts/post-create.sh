@@ -101,14 +101,12 @@ export PATH="$HOME/.local/bin:$PATH"
 if [ "${SKIP_CLAUDE_INSTALL:-}" = "1" ] || [ "${SKIP_CLAUDE_INSTALL:-}" = "true" ]; then
     echo "Skipping Claude Code install (SKIP_CLAUDE_INSTALL is set)"
 elif ! command -v claude >/dev/null 2>&1; then
-    if command -v timeout >/dev/null 2>&1; then
-        timeout 300s bash -c 'curl -fsSL https://claude.ai/install.sh | bash' || {
-            echo "Claude Code install timed out or failed; re-run post-create to try again."
-        }
-    else
-        curl -fsSL https://claude.ai/install.sh | bash || {
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL https://claude.ai/install.sh | sh || {
             echo "Claude Code install failed; re-run post-create to try again."
         }
+    else
+        echo "curl not found; skipping Claude Code install."
     fi
     if command -v claude >/dev/null 2>&1; then
         echo "Claude Code installed successfully!"

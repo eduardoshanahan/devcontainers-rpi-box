@@ -53,9 +53,9 @@ DOCKER_IMAGE_NAME|Docker image name|^[a-z0-9][a-z0-9._-]+$
 DOCKER_IMAGE_TAG|Docker image tag|^[a-zA-Z0-9][a-zA-Z0-9._-]+$
 ANSIBLE_USER|Ansible SSH user|^[a-z_][a-z0-9_-]*$
 ANSIBLE_SSH_PRIVATE_KEY_FILE|Ansible SSH private key file|^.+$
-ANSIBLE_CORE_VERSION|Ansible core version|^[0-9]+(\\.[0-9]+)*(\\.\\*)?$
-ANSIBLE_LINT_VERSION|Ansible-lint version|^[0-9]+(\\.[0-9]+)*(\\.\\*)?$
-YAMLLINT_VERSION|Yamllint version|^[0-9]+(\\.[0-9]+)*(\\.\\*)?$
+ANSIBLE_CORE_VERSION|Ansible core version|^[0-9]+(\.[0-9]+)*(\.\*)?$
+ANSIBLE_LINT_VERSION|Ansible-lint version|^[0-9]+(\.[0-9]+)*(\.\*)?$
+YAMLLINT_VERSION|Yamllint version|^[0-9]+(\.[0-9]+)*(\.\*)?$
 EOF
 
 printf '\nValidating optional variables...\n'
