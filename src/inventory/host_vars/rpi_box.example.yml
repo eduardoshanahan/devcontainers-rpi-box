@@ -7,15 +7,18 @@ ansible_host: "192.0.2.10"
 ansible_port: 22
 # SSH connection user and private key used by Ansible
 ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
-ansible_ssh_private_key_file: "{{ lookup('env', 'ANSIBLE_SSH_PRIVATE_KEY_FILE') }}"
+ansible_ssh_private_key_file: >-
+  {{ lookup('env', 'ANSIBLE_SSH_PRIVATE_KEY_FILE') }}
 
 # Admin user provisioned on the Pi and its public key
 pi_base_admin_user: "{{ lookup('env', 'PI_BASE_ADMIN_USER') }}"
-pi_base_admin_ssh_public_key_file: "{{ lookup('env', 'PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE') }}"
+pi_base_admin_ssh_public_key_file: >-
+  {{ lookup('env', 'PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE') }}
 pi_base_hostname: "rpi-box-01"
 pi_base_timezone: "Europe/Dublin"
 pi_base_locale: "en_IE.UTF-8"
-pi_base_disable_resolved_stub: "{{ lookup('env', 'PI_BASE_DISABLE_RESOLVED_STUB') | bool }}"
+pi_base_disable_resolved_stub: >-
+  {{ lookup('env', 'PI_BASE_DISABLE_RESOLVED_STUB') | bool }}
 pi_base_resolv_conf_target: "{{ lookup('env', 'PI_BASE_RESOLV_CONF_TARGET') }}"
 docker_engine_apt_release: "{{ lookup('env', 'DOCKER_ENGINE_APT_RELEASE') }}"
 
@@ -30,7 +33,8 @@ daily_report_smtp_port: "{{ lookup('env', 'DAILY_REPORT_SMTP_PORT') }}"
 daily_report_smtp_user: "{{ lookup('env', 'DAILY_REPORT_SMTP_USER') }}"
 daily_report_smtp_password: "{{ lookup('env', 'DAILY_REPORT_SMTP_PASSWORD') }}"
 daily_report_user: "{{ lookup('env', 'DAILY_REPORT_USER') }}"
-daily_report_msmtp_log_path: "{{ lookup('env', 'DAILY_REPORT_MSMTP_LOG_PATH') }}"
+daily_report_msmtp_log_path: >-
+  {{ lookup('env', 'DAILY_REPORT_MSMTP_LOG_PATH') }}
 
 # Fail2ban configuration
 fail2ban_base_bantime: "{{ lookup('env', 'FAIL2BAN_BASE_BANTIME') }}"
@@ -41,20 +45,28 @@ fail2ban_base_backend: "{{ lookup('env', 'FAIL2BAN_BASE_BACKEND') }}"
 
 # Time sync configuration
 time_sync_ntp_servers: "{{ lookup('env', 'TIME_SYNC_NTP_SERVERS') | split }}"
-time_sync_fallback_servers: "{{ lookup('env', 'TIME_SYNC_FALLBACK_SERVERS') | split }}"
+time_sync_fallback_servers: >-
+  {{ lookup('env', 'TIME_SYNC_FALLBACK_SERVERS') | split }}
 
 # Log hygiene configuration
-log_hygiene_journald_max_use: "{{ lookup('env', 'LOG_HYGIENE_JOURNALD_MAX_USE') }}"
-log_hygiene_journald_keep_free: "{{ lookup('env', 'LOG_HYGIENE_JOURNALD_KEEP_FREE') }}"
-log_hygiene_journald_max_file_sec: "{{ lookup('env', 'LOG_HYGIENE_JOURNALD_MAX_FILE_SEC') }}"
-log_hygiene_logrotate_rotate: "{{ lookup('env', 'LOG_HYGIENE_LOGROTATE_ROTATE') }}"
-log_hygiene_logrotate_frequency: "{{ lookup('env', 'LOG_HYGIENE_LOGROTATE_FREQUENCY') }}"
+log_hygiene_journald_max_use: >-
+  {{ lookup('env', 'LOG_HYGIENE_JOURNALD_MAX_USE') }}
+log_hygiene_journald_keep_free: >-
+  {{ lookup('env', 'LOG_HYGIENE_JOURNALD_KEEP_FREE') }}
+log_hygiene_journald_max_file_sec: >-
+  {{ lookup('env', 'LOG_HYGIENE_JOURNALD_MAX_FILE_SEC') }}
+log_hygiene_logrotate_rotate: >-
+  {{ lookup('env', 'LOG_HYGIENE_LOGROTATE_ROTATE') }}
+log_hygiene_logrotate_frequency: >-
+  {{ lookup('env', 'LOG_HYGIENE_LOGROTATE_FREQUENCY') }}
 
 # Node exporter configuration
-node_exporter_listen_address: "{{ lookup('env', 'NODE_EXPORTER_LISTEN_ADDRESS') }}"
+node_exporter_listen_address: >-
+  {{ lookup('env', 'NODE_EXPORTER_LISTEN_ADDRESS') }}
 
 # Storage layout configuration
-storage_layout_directories: "{{ lookup('env', 'STORAGE_LAYOUT_DIRECTORIES') | from_json }}"
+storage_layout_directories: >-
+  {{ lookup('env', 'STORAGE_LAYOUT_DIRECTORIES') | from_json }}
 
 # Docker engine configuration
 docker_engine_data_root: "{{ lookup('env', 'DOCKER_ENGINE_DATA_ROOT') }}"
@@ -62,7 +74,8 @@ docker_engine_log_max_size: "{{ lookup('env', 'DOCKER_ENGINE_LOG_MAX_SIZE') }}"
 docker_engine_log_max_file: "{{ lookup('env', 'DOCKER_ENGINE_LOG_MAX_FILE') }}"
 docker_engine_users: "{{ lookup('env', 'DOCKER_ENGINE_USERS') | split }}"
 docker_engine_version: "{{ lookup('env', 'DOCKER_ENGINE_VERSION') }}"
-docker_engine_compose_version: "{{ lookup('env', 'DOCKER_ENGINE_COMPOSE_VERSION') }}"
+docker_engine_compose_version: >-
+  {{ lookup('env', 'DOCKER_ENGINE_COMPOSE_VERSION') }}
 
 # Docker prune configuration
 docker_prune_schedule: "{{ lookup('env', 'DOCKER_PRUNE_SCHEDULE') }}"
@@ -76,7 +89,11 @@ common_tools_packages: "{{ lookup('env', 'COMMON_TOOLS_PACKAGES') | split }}"
 backup_restic_repo: "{{ lookup('env', 'BACKUP_RESTIC_REPO') }}"
 backup_restic_src: "{{ lookup('env', 'BACKUP_RESTIC_SRC') }}"
 backup_restic_password: "{{ lookup('env', 'BACKUP_RESTIC_PASSWORD') }}"
-backup_restic_retention_days: "{{ lookup('env', 'BACKUP_RESTIC_RETENTION_DAYS') }}"
-backup_restic_retention_weeks: "{{ lookup('env', 'BACKUP_RESTIC_RETENTION_WEEKS') }}"
-backup_restic_retention_months: "{{ lookup('env', 'BACKUP_RESTIC_RETENTION_MONTHS') }}"
-backup_restic_timer_schedule: "{{ lookup('env', 'BACKUP_RESTIC_TIMER_SCHEDULE') }}"
+backup_restic_retention_days: >-
+  {{ lookup('env', 'BACKUP_RESTIC_RETENTION_DAYS') }}
+backup_restic_retention_weeks: >-
+  {{ lookup('env', 'BACKUP_RESTIC_RETENTION_WEEKS') }}
+backup_restic_retention_months: >-
+  {{ lookup('env', 'BACKUP_RESTIC_RETENTION_MONTHS') }}
+backup_restic_timer_schedule: >-
+  {{ lookup('env', 'BACKUP_RESTIC_TIMER_SCHEDULE') }}
