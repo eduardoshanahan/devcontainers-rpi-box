@@ -42,6 +42,7 @@
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-vscode-remote.remote-containers",
+                "anthropic.claude-code",
                 "redhat.ansible",
                 "redhat.vscode-yaml",
                 "ms-python.python",
@@ -60,11 +61,11 @@
     ],
     "postCreateCommand": "chmod +x ~/.devcontainer/scripts/post-create.sh && ~/.devcontainer/scripts/post-create.sh",
     "shutdownAction": "stopContainer",
-    "initializeCommand": "export CONTAINER_MEMORY=${localEnv:CONTAINER_MEMORY} && export CONTAINER_CPUS=${localEnv:CONTAINER_CPUS} && export CONTAINER_SHM_SIZE=${localEnv:CONTAINER_SHM_SIZE} && export CONTAINER_HOSTNAME=${localEnv:CONTAINER_HOSTNAME}",
     "containerEnv": {
         "USERNAME": "${localEnv:HOST_USERNAME}",
         "USER_UID": "${localEnv:HOST_UID}",
         "USER_GID": "${localEnv:HOST_GID}",
+        "LOCALE": "${localEnv:LOCALE}",
         "CONTAINER_HOSTNAME": "${localEnv:CONTAINER_HOSTNAME}",
         "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
         "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}",
@@ -79,7 +80,6 @@
     "runArgs": [
         "--name=${localEnv:DOCKER_IMAGE_NAME}",
         "--hostname=${localEnv:CONTAINER_HOSTNAME}",
-        "--env-file=${localWorkspaceFolder}/.env",
         "--env=SSH_AUTH_SOCK=/ssh-agent",
         "--memory=${localEnv:CONTAINER_MEMORY}",
         "--cpus=${localEnv:CONTAINER_CPUS}",

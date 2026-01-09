@@ -28,6 +28,11 @@ format = " [$path]($style)"
 format = " [$env_value]($style)"
 style = "bold cyan"
 
+# Show the container hostname when provided via containerEnv
+[env_var.CONTAINER_HOSTNAME]
+format = "[@$env_value]($style)"
+style = "bold blue"
+
 [line_break]
 disabled = false
 
