@@ -68,7 +68,7 @@ Validates environment variables:
 
 ## Root Launchers
 
-Two root-level launchers are available alongside `launch.sh` for CLI workflows:
+Two root-level launchers are available for CLI workflows:
 
 - `devcontainer-launch.sh`: starts the devcontainer CLI and opens an interactive shell.
 - `claude-launch.sh`: starts the devcontainer CLI and launches Claude Code inside the container.

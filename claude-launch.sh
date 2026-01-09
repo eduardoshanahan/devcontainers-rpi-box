@@ -25,7 +25,7 @@ info() {
 }
 
 # Load project environment
-PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ENV_LOADER="$PROJECT_DIR/.devcontainer/scripts/env-loader.sh"
 
 if [ ! -f "$ENV_LOADER" ]; then
@@ -45,15 +45,13 @@ if [ -f "$VALIDATOR" ]; then
     error "Environment validation failed. Please fix your .env values."
     exit 1
   fi
-else
-  info "Warning: validator not found at $VALIDATOR; skipping validation."
 fi
 
 # Check if devcontainer CLI is installed
 if ! command -v devcontainer >/dev/null 2>&1; then
   error "devcontainer CLI is not installed!"
   info "Please install it with: npm install -g @devcontainers/cli"
-  info "Or use ./launch.sh to work with VS Code/Cursor instead."
+  info "Or use ./editor-launch.sh to work with VS Code/Cursor instead."
   exit 1
 fi
 
@@ -76,37 +74,29 @@ export GIT_USER_EMAIL
 export GIT_REMOTE_URL
 export EDITOR_CHOICE
 export DOCKER_IMAGE_TAG
-export DOCKER_IMAGE_NAME
-export CONTAINER_HOSTNAME
 
-# Use a unique container name for CLI sessions to avoid conflicts
-BASE_CONTAINER_NAME="${PROJECT_NAME:-devcontainer}-cli"
-DEFAULT_CONTAINER_NAME="${PROJECT_NAME:-devcontainer}-${EDITOR_CHOICE:-code}"
-if [ -z "${DOCKER_IMAGE_NAME:-}" ] || [ "$DOCKER_IMAGE_NAME" = "$DEFAULT_CONTAINER_NAME" ]; then
-  UNIQUE_SUFFIX="$(date +%Y%m%d%H%M%S)-$$"
+# Use a unique container name for Claude sessions to avoid conflicts
+LAUNCHER_TAG="claude"
+BASE_CONTAINER_NAME="${PROJECT_NAME}-${LAUNCHER_TAG}"
+DEFAULT_CONTAINER_NAME="${PROJECT_NAME}-${EDITOR_CHOICE:-code}"
+ID_LABEL="devcontainer.session=${PROJECT_NAME}-${LAUNCHER_TAG}"
+if [ -z "${DOCKER_IMAGE_NAME:-}" ] || [ "$DOCKER_IMAGE_NAME" = "$DEFAULT_CONTAINER_NAME" ] || [ "$DOCKER_IMAGE_NAME" = "${PROJECT_NAME}-code" ]; then
+  UNIQUE_SUFFIX="$(date +%s)-$$"
   export DOCKER_IMAGE_NAME="${BASE_CONTAINER_NAME}-${UNIQUE_SUFFIX}"
   export CONTAINER_HOSTNAME="${DOCKER_IMAGE_NAME}"
 fi
 
-if [ -z "${CONTAINER_HOSTNAME:-}" ] && [ -n "${DOCKER_IMAGE_NAME:-}" ]; then
-  export CONTAINER_HOSTNAME="${DOCKER_IMAGE_NAME}"
-fi
-
 info "Ensuring devcontainer is running..."
-if [ "${REBUILD_CONTAINER:-}" = "1" ] || [ "${REBUILD_CONTAINER:-}" = "true" ]; then
-  info "Rebuilding devcontainer image (REBUILD_CONTAINER is set)..."
-  devcontainer build --workspace-folder "$PROJECT_DIR" >/dev/null
+if [ -n "${DOCKER_IMAGE_NAME:-}" ] && [ -n "${DOCKER_IMAGE_TAG:-}" ]; then
+  info "Building devcontainer image ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}..."
+  devcontainer build --workspace-folder "$PROJECT_DIR" --image-name "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" >/dev/null
 fi
-
-if ! devcontainer exec --workspace-folder "$PROJECT_DIR" true >/dev/null 2>&1; then
+if ! devcontainer exec --workspace-folder "$PROJECT_DIR" --id-label "$ID_LABEL" true >/dev/null 2>&1; then
   if docker ps -a --format '{{.Names}}' | grep -qx "${DOCKER_IMAGE_NAME}"; then
     info "Removing stale container: ${DOCKER_IMAGE_NAME}"
     docker rm -f "${DOCKER_IMAGE_NAME}" >/dev/null 2>&1 || true
   fi
-  devcontainer up --workspace-folder "$PROJECT_DIR" --remove-existing-container >/dev/null
-elif [ "${REBUILD_CONTAINER:-}" = "1" ] || [ "${REBUILD_CONTAINER:-}" = "true" ]; then
-  info "Restarting devcontainer to pick up rebuild..."
-  devcontainer up --workspace-folder "$PROJECT_DIR" --remove-existing-container >/dev/null
+  devcontainer up --workspace-folder "$PROJECT_DIR" --id-label "$ID_LABEL" --remove-existing-container >/dev/null
 fi
 
 success "Devcontainer is running"
@@ -115,15 +105,21 @@ stop_container() {
   if [ "${KEEP_CONTAINER:-}" = "1" ] || [ "${KEEP_CONTAINER:-}" = "true" ]; then
     return 0
   fi
-  devcontainer down --workspace-folder "$PROJECT_DIR" >/dev/null 2>&1 || true
+  if devcontainer down --workspace-folder "$PROJECT_DIR" --id-label "$ID_LABEL" >/dev/null 2>&1; then
+    return 0
+  fi
+  if command -v docker >/dev/null 2>&1; then
+    docker stop "${DOCKER_IMAGE_NAME}" >/dev/null 2>&1 || true
+  fi
 }
 trap 'stop_container' EXIT
+
 info "Launching Claude Code..."
 echo ""
 
 # Launch Claude Code interactively in the container.
 # Avoid relying on non-interactive .bashrc behavior; prefer a direct path fallback.
-devcontainer exec --workspace-folder "$PROJECT_DIR" bash -lc 'if command -v claude >/dev/null 2>&1; then exec claude; elif [ -x "$HOME/.local/bin/claude" ]; then exec "$HOME/.local/bin/claude"; else echo "Claude Code not found in PATH or ~/.local/bin. Rebuild the container or re-run post-create to install it."; exit 127; fi'
+devcontainer exec --workspace-folder "$PROJECT_DIR" --id-label "$ID_LABEL" bash -lc 'if command -v claude >/dev/null 2>&1; then exec claude; elif [ -x "$HOME/.local/bin/claude" ]; then exec "$HOME/.local/bin/claude"; else echo "Claude Code not found in PATH or ~/.local/bin. Rebuild the container or re-run post-create to install it."; exit 127; fi'
 
 echo ""
 info "Claude Code session ended."

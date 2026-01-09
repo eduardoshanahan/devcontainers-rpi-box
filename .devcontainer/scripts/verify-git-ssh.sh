@@ -5,7 +5,11 @@ set -eu
 # Usage: ./verify-git-ssh.sh [git-host]
 # Example: ./verify-git-ssh.sh git@github.com
 
-GIT_HOST="${1:-git@github.com}"
+GIT_HOST="${1:-${GIT_SSH_HOST:-}}"
+if [ -z "$GIT_HOST" ]; then
+    echo "Error: git host not specified. Pass as an argument or set GIT_SSH_HOST." >&2
+    exit 1
+fi
 
 info() { printf '\033[1;33m%s\033[0m\n' "$1"; }
 ok()   { printf '\033[1;32m%s\033[0m\n' "$1"; }

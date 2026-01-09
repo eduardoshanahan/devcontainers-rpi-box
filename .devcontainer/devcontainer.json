@@ -4,6 +4,7 @@
         "dockerfile": "Dockerfile",
         "context": ".",
         "args": {
+            "LOCALE": "${localEnv:LOCALE}",
             "USERNAME": "${localEnv:HOST_USERNAME}",
             "USER_UID": "${localEnv:HOST_UID}",
             "USER_GID": "${localEnv:HOST_GID}",
@@ -24,6 +25,13 @@
                 "editor.acceptSuggestionOnEnter": "off",
                 "[yaml]": {
                     "editor.defaultFormatter": "redhat.vscode-yaml"
+                },
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash",
+                        "icon": "terminal-bash"
+                    }
                 }
             },
             "extensions": [
@@ -38,25 +46,20 @@
                 "redhat.vscode-yaml",
                 "ms-python.python",
                 "ms-python.vscode-pylance"
-            ],
-            "terminal.integrated.defaultProfile.linux": "bash",
-            "terminal.integrated.profiles.linux": {
-                "bash": {
-                    "path": "/bin/bash",
-                    "icon": "terminal-bash"
-                }
-            }
+            ]
         }
     },
     "remoteUser": "${localEnv:HOST_USERNAME}",
     "updateRemoteUserUID": true,
-    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
-    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=${localEnv:WORKSPACE_FOLDER},type=bind,consistency=cached",
+    "workspaceFolder": "${localEnv:WORKSPACE_FOLDER}",
     "mounts": [
         "source=${localWorkspaceFolder}/.devcontainer,target=/home/${localEnv:HOST_USERNAME}/.devcontainer,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/.ssh,target=/home/${localEnv:HOST_USERNAME}/.ssh,type=bind,consistency=cached"
+        "source=${localEnv:HOME}/.ssh,target=/home/${localEnv:HOST_USERNAME}/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
     ],
     "postCreateCommand": "chmod +x ~/.devcontainer/scripts/post-create.sh && ~/.devcontainer/scripts/post-create.sh",
+    "shutdownAction": "stopContainer",
     "initializeCommand": "export CONTAINER_MEMORY=${localEnv:CONTAINER_MEMORY} && export CONTAINER_CPUS=${localEnv:CONTAINER_CPUS} && export CONTAINER_SHM_SIZE=${localEnv:CONTAINER_SHM_SIZE} && export CONTAINER_HOSTNAME=${localEnv:CONTAINER_HOSTNAME}",
     "containerEnv": {
         "USERNAME": "${localEnv:HOST_USERNAME}",
@@ -68,22 +71,22 @@
         "GIT_REMOTE_URL": "${localEnv:GIT_REMOTE_URL}",
         "DOCKER_IMAGE_NAME": "${localEnv:DOCKER_IMAGE_NAME}",
         "DOCKER_IMAGE_TAG": "${localEnv:DOCKER_IMAGE_TAG}",
-        "ANSIBLE_CONFIG": "/workspace/src/ansible.cfg",
-        "ANSIBLE_INVENTORY": "/workspace/src/inventory",
-        "ANSIBLE_COLLECTIONS_PATH": "/workspace/src/collections:/home/${localEnv:HOST_USERNAME}/.ansible/collections",
-        "ANSIBLE_ROLES_PATH": "/workspace/src/roles"
+        "ANSIBLE_CONFIG": "${localEnv:ANSIBLE_CONFIG}",
+        "ANSIBLE_INVENTORY": "${localEnv:ANSIBLE_INVENTORY}",
+        "ANSIBLE_COLLECTIONS_PATH": "${localEnv:ANSIBLE_COLLECTIONS_PATH}",
+        "ANSIBLE_ROLES_PATH": "${localEnv:ANSIBLE_ROLES_PATH}"
     },
     "runArgs": [
         "--name=${localEnv:DOCKER_IMAGE_NAME}",
         "--hostname=${localEnv:CONTAINER_HOSTNAME}",
         "--env-file=${localWorkspaceFolder}/.env",
-        "--env=SSH_AUTH_SOCK=${localEnv:SSH_AUTH_SOCK}",
+        "--env=SSH_AUTH_SOCK=/ssh-agent",
         "--memory=${localEnv:CONTAINER_MEMORY}",
         "--cpus=${localEnv:CONTAINER_CPUS}",
         "--shm-size=${localEnv:CONTAINER_SHM_SIZE}"
     ],
     "forwardPorts": [],
     "remoteEnv": {
-        "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
+        "SSH_AUTH_SOCK": "/ssh-agent"
     }
 }

@@ -114,6 +114,10 @@
   notify: Restart daily report timer
   tags: [daily_report]
 
+- name: Flush systemd unit changes before enabling timer
+  ansible.builtin.meta: flush_handlers
+  tags: [daily_report]
+
 - name: Enable and start daily report timer
   ansible.builtin.systemd:
     name: "{{ daily_report_service_name }}.timer"

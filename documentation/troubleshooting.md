@@ -8,7 +8,7 @@
 ## Devcontainer fails to start due to SSH_AUTH_SOCK
 
 - Ensure an SSH agent is running on the host.
-- Export `SSH_AUTH_SOCK` in your shell before running `./launch.sh`.
+- Export `SSH_AUTH_SOCK` in your shell before running `./editor-launch.sh`.
 
 ## Git identity not set in the container
 

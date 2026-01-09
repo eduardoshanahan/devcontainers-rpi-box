@@ -1,8 +1,18 @@
 #!/bin/sh
 # --- SSH Agent Setup ---
 
-# Exit on error, undefined vars, and pipe failures
+# Avoid running multiple times in the same shell.
+if [ "${SSH_AGENT_SETUP_DONE:-0}" = "1" ]; then
+  return 0 2>/dev/null || exit 0
+fi
+export SSH_AGENT_SETUP_DONE=1
+
+# Exit on error and undefined vars.
+# Preserve shell opts because this script is sourced from interactive shells.
+_SSH_AGENT_OLD_OPTS=$(set +o)
 set -eu
+IFS='
+	'
 
 # Function to check file permissions
 check_file_permissions() {
@@ -28,13 +38,29 @@ case $- in
     check_file_permissions "$HOME/.ssh" "700" || chmod 700 "$HOME/.ssh"
   fi
 
-  # If SSH_AUTH_SOCK points to a forwarded agent, trust it; otherwise start our own
+  # If SSH_AUTH_SOCK points to a forwarded agent, trust it; otherwise try to reuse a saved agent.
   if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
     echo "Using forwarded SSH agent at ${SSH_AUTH_SOCK}"
   else
-    echo "No forwarded SSH agent detected. Starting a new agent..."
-    eval "$(ssh-agent -s)" >/dev/null
-    export SSH_AUTH_SOCK SSH_AGENT_PID
+    reused_agent=false
+    if [ -f "$HOME/.ssh/agent_env" ]; then
+      # shellcheck disable=SC1090
+      . "$HOME/.ssh/agent_env"
+      if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
+        if [ -z "${SSH_AGENT_PID:-}" ] || ps -p "${SSH_AGENT_PID}" >/dev/null 2>&1; then
+          echo "Reusing existing SSH agent at ${SSH_AUTH_SOCK}"
+          reused_agent=true
+        else
+          unset SSH_AUTH_SOCK SSH_AGENT_PID
+        fi
+      fi
+    fi
+
+    if [ "$reused_agent" = false ]; then
+      echo "No forwarded SSH agent detected. Starting a new agent..."
+      eval "$(ssh-agent -s)" >/dev/null
+      export SSH_AUTH_SOCK SSH_AGENT_PID
+    fi
   fi
 
   # Save the agent variables with proper permissions
@@ -79,4 +105,6 @@ case $- in
 esac
 
 set +e
+# Restore caller shell options (notably disables nounset for the caller).
+eval "$_SSH_AGENT_OLD_OPTS"
 # --- End SSH Agent Setup ---

@@ -211,7 +211,7 @@ main() {
     target_branch="$BRANCH"
 
     if [ "$FORCE_PULL" != "true" ] && ! git diff --quiet --ignore-submodules HEAD --; then
-        error "Local changes detected. Commit/stash them or run FORCE_PULL=true ./scripts/sync_git.sh"
+        error "Local changes detected. Commit/stash them or run FORCE_PULL=true ./scripts/sync-git.sh"
         exit 1
     fi
 
