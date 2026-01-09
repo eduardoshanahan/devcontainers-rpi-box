@@ -13,8 +13,8 @@
       - storage_layout_directories is defined
       - storage_layout_directories | length > 0
     fail_msg: >-
-      Define required deployment_verify variables (daily_report_*, docker_prune_*,
-      storage_layout_directories) before applying this role.
+      Define required deployment_verify variables (daily_report_*,
+      docker_prune_*, storage_layout_directories) before applying this role.
   tags: [deployment_verify]
 
 - name: Gather service facts
@@ -79,7 +79,8 @@
     that:
       - item.stat.exists
       - item.stat.isreg
-    fail_msg: "Required file is missing or not a regular file: {{ item.stat.path }}"
+    fail_msg: >-
+      Required file is missing or not a regular file: {{ item.stat.path }}
   loop: "{{ deployment_verify_file_stats.results }}"
   tags: [deployment_verify]
 
@@ -95,6 +96,7 @@
     that:
       - item.stat.exists
       - item.stat.isdir
-    fail_msg: "Storage directory is missing or not a directory: {{ item.stat.path }}"
+    fail_msg: >-
+      Storage directory is missing or not a directory: {{ item.stat.path }}
   loop: "{{ deployment_verify_storage_stats.results }}"
   tags: [deployment_verify]
