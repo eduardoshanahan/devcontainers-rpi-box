@@ -24,7 +24,7 @@ info() {
 }
 
 # Load project environment via shared loader (root .env is authoritative)
-PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ENV_LOADER="$PROJECT_DIR/.devcontainer/scripts/env-loader.sh"
 
 if [ ! -f "$ENV_LOADER" ]; then
@@ -61,7 +61,7 @@ export DOCKER_IMAGE_TAG
 
 # Validate editor choice
 if [ "${EDITOR_CHOICE}" != "code" ] && [ "${EDITOR_CHOICE}" != "cursor" ] && [ "${EDITOR_CHOICE}" != "antigravity" ]; then
-  error "EDITOR_CHOICE must be set to either 'code' or 'cursor' or 'antigravity' in .env"
+  error "EDITOR_CHOICE must be set to either 'code', 'cursor', or 'antigravity' in .env"
   exit 1
 fi
 
@@ -79,16 +79,16 @@ if ! command -v "${EDITOR_CHOICE}" >/dev/null 2>&1; then
 fi
 
 # Launch the editor (let Dev Containers handle building/running the container)
-info "Launching ${EDITOR_CHOICE} with workspace ${PWD}..."
+info "Launching ${EDITOR_CHOICE} with workspace ${PROJECT_DIR}..."
 case "${EDITOR_CHOICE}" in
   code)
-    code "${PWD}" >/dev/null 2>&1 &
+    code "${PROJECT_DIR}" >/dev/null 2>&1 &
     ;;
   cursor)
-    cursor "${PWD}" --no-sandbox >/dev/null 2>&1 &
+    cursor "${PROJECT_DIR}" --no-sandbox >/dev/null 2>&1 &
     ;;
   antigravity)
-    antigravity "${PWD}" >/dev/null 2>&1 &
+    antigravity "${PROJECT_DIR}" >/dev/null 2>&1 &
     ;;
 esac
 

@@ -1,4 +1,4 @@
-# How to use sync_git.sh
+# How to use sync-git.sh
 
 This helper keeps a local repo in sync with one or more remotes while avoiding
 conflicts from external file sync tools.
@@ -29,13 +29,13 @@ GIT_REMOTE_URL_LAN="ssh://git@192.168.1.10:/volume1/git/${PROJECT_NAME}.git"
 Standard sync (requires clean working tree):
 
 ```sh
-./scripts/sync_git.sh
+./scripts/sync-git.sh
 ```
 
 Force sync (overwrites local changes):
 
 ```sh
-FORCE_PULL=true ./scripts/sync_git.sh
+FORCE_PULL=true ./scripts/sync-git.sh
 ```
 
 ## Behavior notes

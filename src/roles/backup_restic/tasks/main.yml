@@ -58,6 +58,9 @@
     mode: "0644"
   notify: Reload systemd
 
+- name: Flush systemd unit changes before enabling timer
+  ansible.builtin.meta: flush_handlers
+
 - name: Enable and start backup timer
   ansible.builtin.systemd:
     name: rpi-backup.timer

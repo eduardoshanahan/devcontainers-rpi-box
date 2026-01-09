@@ -7,7 +7,7 @@ playbooks, inventory, and roles live under `src/`.
 
 ## Quick Start
 
-1. Copy `.env.example` to `.env`, then run `./launch.sh` (GUI) or `./devcontainer-launch.sh` (CLI).
+1. Copy `.env.example` to `.env`, then run `./editor-launch.sh` (GUI) or `./devcontainer-launch.sh` (CLI).
 2. Reopen in container (VS Code/Cursor/Antigravity) to use the preconfigured Ansible tools.
 3. Configure host vars and cloud-init seed files.
 4. Run the base playbook: `ansible-playbook src/playbooks/pi-base.yml`.
@@ -30,7 +30,7 @@ playbooks, inventory, and roles live under `src/`.
 
 - Lint + idempotence + checks: `scripts/ansible-smoke.sh`
 - Devcontainer launchers:
-  - `launch.sh` (GUI)
+- `editor-launch.sh` (GUI)
   - `devcontainer-launch.sh` (CLI shell)
   - `claude-launch.sh` (CLI, launches Claude Code)
 

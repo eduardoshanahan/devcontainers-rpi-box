@@ -50,6 +50,10 @@
     mode: "0644"
   notify: Reload systemd
 
+- name: Flush systemd unit changes before enabling timer
+  ansible.builtin.meta: flush_handlers
+  tags: [docker_prune]
+
 - name: Enable and start prune timer
   ansible.builtin.systemd:
     name: "{{ docker_prune_service_name }}.timer"

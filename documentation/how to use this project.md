@@ -29,7 +29,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 
 - Run inside the provided devcontainer (or any shell with the repo checked out) so Ansible tooling and environment variables are pre-configured.
 - Launch options:
-  - `./launch.sh` for VS Code/Cursor/Antigravity.
+  - `./editor-launch.sh` for VS Code/Cursor/Antigravity.
   - `./devcontainer-launch.sh` for a CLI shell.
   - `./claude-launch.sh` to start Claude Code inside the container.
 - Ensure the SSH key that can reach the Pi is accessible on the host; the devcontainer forwards your host SSH agent so keys never need to be copied into the repo.

@@ -9,7 +9,7 @@ Sync tools like Synology Drive can conflict with file changes produced inside a
 container. The helper scripts are designed to keep Git operations safe when a
 sync tool is active:
 
-- Prefer running `./scripts/sync_git.sh` for pulls and pushes.
+- Prefer running `./scripts/sync-git.sh` for pulls and pushes.
 - Keep the working tree clean before syncing (or use `FORCE_PULL=true`).
 - Configure remotes in `.env` so the script can add missing remotes reliably.
 

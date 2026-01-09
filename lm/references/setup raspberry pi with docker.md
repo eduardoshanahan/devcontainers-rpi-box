@@ -3,7 +3,7 @@
 ## Repository Snapshot
 
 - Devcontainer already bakes in Ansible tooling (`.devcontainer/Dockerfile`, `.devcontainer/devcontainer.json`) and exports `ANSIBLE_CONFIG`/`ANSIBLE_INVENTORY` so anything under `src/` is immediately usable once the container boots.
-- Helper workflow is `.env` ➝ `./launch.sh` ➝ “Reopen in Container”; Ansible lint + smoke testing live in `scripts/ansible-smoke.sh`.
+- Helper workflow is `.env` ➝ `./editor-launch.sh` ➝ “Reopen in Container”; Ansible lint + smoke testing live in `scripts/ansible-smoke.sh`.
 - Current inventory (`src/inventory/hosts.ini`) only declares the `local` group with `localhost ansible_connection=local`; there are no Raspberry Pi hosts or groups yet.
 - `src/playbooks/sample.yml` is a placeholder sanity check; no real playbooks exist for imaging or configuring a Pi.
 - `group_vars/all.yml` only pins `ansible_python_interpreter`; there are no variables for Pi credentials, package mirrors, Docker settings, etc.

@@ -37,14 +37,24 @@ make_temp_dir() {
     done
 }
 
-if [ $# -lt 2 ]; then
+if [ $# -ge 1 ]; then
+    PLAYBOOK="$1"
+else
+    PLAYBOOK="${SMOKE_PLAYBOOK:-}"
+fi
+
+if [ $# -ge 2 ]; then
+    INVENTORY="$2"
+else
+    INVENTORY="${SMOKE_INVENTORY:-}"
+fi
+
+if [ -z "$PLAYBOOK" ] || [ -z "$INVENTORY" ]; then
     printf 'Usage: %s /path/to/playbook.yml /path/to/inventory.ini\n' "$0" >&2
+    printf 'Or set SMOKE_PLAYBOOK and SMOKE_INVENTORY in the environment.\n' >&2
     printf 'Optional: set SMOKE_GROUP to override the default host group (default: raspberry_pi_boxes).\n' >&2
     exit 1
 fi
-
-PLAYBOOK="$1"
-INVENTORY="$2"
 
 if ! command -v ansible >/dev/null 2>&1; then
     printf '%s\n' "ansible command not found; run this script inside the devcontainer." >&2

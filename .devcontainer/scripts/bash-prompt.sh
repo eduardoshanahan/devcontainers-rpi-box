@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Ensure nounset doesn't break VS Code shell integration in interactive shells.
+set +u
+
 # Enable Starship prompt first
 if command -v starship >/dev/null 2>&1; then
     if [ -f "/workspace/.devcontainer/config/starship.toml" ]; then
@@ -7,7 +10,7 @@ if command -v starship >/dev/null 2>&1; then
         mkdir -p "$HOME/.config"
         cp "$STARSHIP_CONFIG" "$HOME/.config/starship.toml"
     fi
-    eval "$(starship init sh)"
+    eval "$(starship init bash)"
 fi
 
 # Load environment variables using shared loader (try workspace first)
@@ -61,3 +64,6 @@ alias jsonlint='jq "."'
 alias jsonformat='jq "."'
 alias jsonvalidate='jq empty'
 alias jsonpretty='jq "."'
+
+# Export SHELL variable to ensure bash is used
+export SHELL=/bin/bash
