@@ -245,12 +245,13 @@ If a required environment variable is missing:
 
 ## 12. Agent Behavior
 
+- At the start of any task, read the ADRs in `documentation/adr/` (at minimum `ADR-0001-record-architecture-decisions.md`) and follow any decisions relevant to the work.
 - Explain *what* changed and *why*
 - Prefer safety over convenience
 - Fail fast and loudly on misconfiguration
 - Never assume production access
 - Never assume internet access on target hosts
 
----
+--- 
 
 ## End of Agent Instructions
