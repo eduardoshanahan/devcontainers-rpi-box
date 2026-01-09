@@ -14,6 +14,7 @@ playbooks, inventory, and roles live under `src/`.
 
 ## Key Docs
 
+- Documentation index: [documentation/README.md](documentation/README.md)
 - Setup of environment variables: [working with environment variables](documentation/working%20with%20environment%20variables.md)
 - Usage and cloud-init SD steps: [how to use this project.md](documentation/how%20to%20use%20this%20project.md)
 - Validation and smoke tests: [how to test.md](documentation/how%20to%20test.md)
@@ -22,9 +23,9 @@ playbooks, inventory, and roles live under `src/`.
 - Devcontainer CLI: [how to use devcontainer cli.md](documentation/how%20to%20use%20devcontainer%20cli.md)
 - Claude Code: [how to use claude.md](documentation/how%20to%20use%20claude.md)
 - File sync and ownership: [file sync and ownership.md](documentation/file%20sync%20and%20ownership.md)
-- Daily timeline + summaries: [lm/recaps](lm/recaps)
-- Current state: [lm/state](lm/state)
-- Roadmap and decisions: [lm/plans](lm/plans)
+- Daily timeline + summaries: [documentation/diary/recaps](documentation/diary/recaps)
+- Current state: [documentation/diary/state](documentation/diary/state)
+- Roadmap and decisions: [documentation/diary/plans](documentation/diary/plans)
 
 ## Helpful Scripts
 
