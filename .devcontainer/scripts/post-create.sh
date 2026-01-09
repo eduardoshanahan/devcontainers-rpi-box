@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 # Load environment variables via shared loader (project root .env is authoritative)
 if [ -f "/workspace/.devcontainer/scripts/env-loader.sh" ]; then
@@ -22,7 +23,8 @@ if [ -f "$VALIDATOR" ]; then
         exit 1
     fi
 else
-    echo "Warning: validate-env.sh not found; skipping environment validation"
+    echo "Error: validate-env.sh not found at $VALIDATOR" >&2
+    exit 1
 fi
 
 # Configure Git if variables are set
