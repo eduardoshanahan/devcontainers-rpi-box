@@ -1,4 +1,4 @@
-# ADR-0003: Maintain `lm/` daily project journal
+# ADR-0003: Maintain `documentation/diary/` daily project journal
 
 ## Status
 
@@ -17,13 +17,13 @@ We need a lightweight, repo-local way to:
 
 ## Decision
 
-Maintain an `lm/` directory as a daily project journal:
+Maintain `documentation/diary/` as a daily project journal:
 
-- `lm/state/YYYY-MM-DD.md` records the current project status and next steps.
-- `lm/plans/YYYY-MM-DD.md` records what we plan to accomplish that day.
-- `lm/recaps/YYYY-MM-DD.md` records progress checkpoints and outcomes during the day.
+- `documentation/diary/state/YYYY-MM-DD.md` records the current project status and next steps.
+- `documentation/diary/plans/YYYY-MM-DD.md` records what we plan to accomplish that day.
+- `documentation/diary/recaps/YYYY-MM-DD.md` records progress checkpoints and outcomes during the day.
 
-When code or documentation changes, the corresponding `lm/` files for that day must be updated.
+When code or documentation changes, the corresponding `documentation/diary/` files for that day must be updated.
 
 ## Consequences
 
@@ -35,4 +35,3 @@ When code or documentation changes, the corresponding `lm/` files for that day m
 
 - Rely on chat history (rejected: not durable, not searchable in-repo)
 - Only update README/docs (rejected: loses daily execution details and intermediate steps)
-

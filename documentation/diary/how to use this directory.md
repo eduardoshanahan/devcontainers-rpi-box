@@ -1,4 +1,4 @@
-# How to use the lm directory
+# How to use the diary directory
 
 - Before starting to work from fresh, read all the files in the directory.
 - In each subdirectory, there are files named by the date when the work was done.
