@@ -26,6 +26,12 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
 
   ```bash
   ./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini
+
+  To run the smoke test against a single host, pass a limit as the third argument:
+
+  ```bash
+  ./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini rpi_box_03
+  ```
   ```
 
 ## SSH Hardening

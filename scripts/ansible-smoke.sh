@@ -49,10 +49,16 @@ else
     INVENTORY="${SMOKE_INVENTORY:-}"
 fi
 
+if [ $# -ge 3 ]; then
+    LIMIT="$3"
+else
+    LIMIT="${SMOKE_LIMIT:-}"
+fi
+
 if [ -z "$PLAYBOOK" ] || [ -z "$INVENTORY" ]; then
-    printf 'Usage: %s /path/to/playbook.yml /path/to/inventory.ini\n' "$0" >&2
+    printf 'Usage: %s /path/to/playbook.yml /path/to/inventory.ini [limit]\n' "$0" >&2
     printf 'Or set SMOKE_PLAYBOOK and SMOKE_INVENTORY in the environment.\n' >&2
-    printf 'Optional: set SMOKE_GROUP to override the default host group (default: raspberry_pi_boxes).\n' >&2
+    printf 'Optional: provide [limit] or set SMOKE_LIMIT to target a single host/group.\n' >&2
     exit 1
 fi
 
@@ -109,11 +115,21 @@ run_playbook() {
         return 1
     fi
 
-    printf '%s\n' ">>> Executing ansible-playbook ${PLAYBOOK} (${smoke_label}, inventory: ${INVENTORY})"
+    if [ -n "$LIMIT" ]; then
+        limit_label="limit: ${LIMIT}, "
+    else
+        limit_label=""
+    fi
+
+    printf '%s\n' ">>> Executing ansible-playbook ${PLAYBOOK} (${smoke_label}, ${limit_label}inventory: ${INVENTORY})"
     tee "$output_file" < "$output_fifo" &
     tee_pid=$!
 
-    ansible-playbook -i "$INVENTORY" "$PLAYBOOK" >"$output_fifo" 2>&1
+    if [ -n "$LIMIT" ]; then
+        ansible-playbook -i "$INVENTORY" -l "$LIMIT" "$PLAYBOOK" >"$output_fifo" 2>&1
+    else
+        ansible-playbook -i "$INVENTORY" "$PLAYBOOK" >"$output_fifo" 2>&1
+    fi
     play_rc=$?
 
     wait "$tee_pid" 2>/dev/null || true

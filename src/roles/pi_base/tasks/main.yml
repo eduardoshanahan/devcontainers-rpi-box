@@ -51,7 +51,9 @@
 
 - name: Check admin SSH public key file exists
   ansible.builtin.stat:
-    path: "{{ pi_base_admin_ssh_public_key_file }}"
+    path: "{{ pi_base_admin_ssh_public_key_file | expanduser }}"
+  delegate_to: localhost
+  become: false
   register: pi_base_admin_ssh_key_stat
   tags: [pi_base, access]
 
@@ -63,12 +65,20 @@
     fail_msg: >-
       Admin SSH public key file not found or not a regular file:
       {{ pi_base_admin_ssh_public_key_file }}
+      (expanded: {{ pi_base_admin_ssh_public_key_file | expanduser }})
+  delegate_to: localhost
+  become: false
   tags: [pi_base, access]
 
 - name: Load admin SSH public key from file
   ansible.builtin.set_fact:
     pi_base_admin_ssh_public_key: >-
-      {{ lookup('file', pi_base_admin_ssh_public_key_file) | trim }}
+      {{
+        lookup(
+          'file',
+          pi_base_admin_ssh_public_key_file | expanduser
+        ) | trim
+      }}
   tags: [pi_base, access]
 
 - name: Ensure admin user exists with sudo access

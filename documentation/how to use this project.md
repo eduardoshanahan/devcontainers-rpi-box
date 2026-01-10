@@ -11,17 +11,18 @@ This living document captures the workflow for operating the Raspberry Pi auto
    ```
 
 2. Edit `.env` and set your host username/UID/GID plus the Ansible-related paths:
+
    - `ANSIBLE_CONFIG=/workspace/src/ansible.cfg`
    - `ANSIBLE_INVENTORY=/workspace/src/inventory/hosts.ini`
    - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
    - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
    - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
-  - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
-  - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
-  - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
-  - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
-  - `BACKUP_RESTIC_RETENTION_DAYS`, `BACKUP_RESTIC_RETENTION_WEEKS`, `BACKUP_RESTIC_RETENTION_MONTHS`
-  - `BACKUP_RESTIC_TIMER_SCHEDULE`
+   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
+   - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
+   - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
+   - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
+   - `BACKUP_RESTIC_RETENTION_DAYS`, `BACKUP_RESTIC_RETENTION_WEEKS`, `BACKUP_RESTIC_RETENTION_MONTHS`
+   - `BACKUP_RESTIC_TIMER_SCHEDULE`
 
 The devcontainer loads these variables from `.env`, so keeping them here makes the configuration obvious and versioned via `.env.example`.
 
@@ -82,7 +83,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 2. Edit `src/inventory/host_vars/rpi_box_01.yml` with the correct `ansible_host` and `ansible_port`. The remaining values are read from `.env` via `lookup('env', ...)` so the file can stay minimal and local-only.
 3. Add the required `pi_base` variables so the base role can lock down access safely:
    - `pi_base_admin_user` (same as `ansible_user`)
-   - `pi_base_admin_ssh_public_key_file` (path to the admin public key)
+   - `pi_base_admin_ssh_public_key_file` (path to the admin public key on the Ansible control machine)
    - `pi_base_hostname`, `pi_base_timezone`, `pi_base_locale`
 4. Add the required `daily_report` variables if you want the daily status email (set them in `.env` or `host_vars`):
    - `daily_report_time`, `daily_report_email`, `daily_report_sender`
@@ -95,10 +96,10 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `time_sync_ntp_servers`, `time_sync_fallback_servers`
    - `log_hygiene_journald_max_use`, `log_hygiene_journald_keep_free`
    - `log_hygiene_journald_max_file_sec`, `log_hygiene_logrotate_rotate`, `log_hygiene_logrotate_frequency`
-   - `node_exporter_listen_address`
+   - `node_exporter_listen_address` (recommend `127.0.0.1:9100` until Prometheus is set up)
    - `storage_layout_directories` (list of directories with owner/group/mode)
    - `docker_engine_data_root`, `docker_engine_log_max_size`, `docker_engine_log_max_file`
-   - `docker_engine_users`, `docker_engine_apt_release`
+   - `docker_engine_users`, `docker_engine_apt_release` (must match `ansible_distribution_release`; Docker repo OS auto-detects Debian vs Ubuntu, override with `docker_engine_apt_repo_os` if needed)
    - `docker_engine_version`, `docker_engine_compose_version` (set to empty string to install latest)
    - `docker_prune_schedule`, `docker_prune_command`, `docker_prune_service_name`
    - `common_tools_packages`
