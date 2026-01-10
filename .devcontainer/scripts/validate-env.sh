@@ -76,6 +76,7 @@ while IFS='|' read -r var description pattern; do
 done <<'EOF'
 GIT_REMOTE_URL|Git remote URL|^(https://|git@).+
 CLAUDE_INSTALL_SHA256|Claude Code installer checksum|^[A-Fa-f0-9]{64}$
+WORKSPACE_ALLOW_IN_CONTAINER|Allow workspace.sh inside container (not recommended)|^(0|1|true|false)$
 EOF
 
 printf '\nValidating SSH agent forwarding...\n'
