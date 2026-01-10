@@ -13,13 +13,13 @@
       - fail2ban_base_backend | length > 0
     fail_msg: >-
       Define required fail2ban_base_* variables before applying this role.
-  tags: [fail2ban]
+  tags: [fail2ban_base, fail2ban]
 
 - name: Install fail2ban
   ansible.builtin.apt:
     name: fail2ban
     state: present
-  tags: [fail2ban]
+  tags: [fail2ban_base, fail2ban]
 
 - name: Configure fail2ban SSH jail
   ansible.builtin.template:
@@ -29,11 +29,11 @@
     group: root
     mode: "0644"
   notify: Restart fail2ban
-  tags: [fail2ban]
+  tags: [fail2ban_base, fail2ban]
 
 - name: Ensure fail2ban service is enabled and running
   ansible.builtin.systemd:
     name: fail2ban
     enabled: true
     state: started
-  tags: [fail2ban]
+  tags: [fail2ban_base, fail2ban]

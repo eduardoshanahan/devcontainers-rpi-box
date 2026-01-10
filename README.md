@@ -11,7 +11,7 @@ playbooks, inventory, and roles live under `src/`.
 2. Optional: start the standard tmux workspace with `make workspace`.
 3. Reopen in container (VS Code/Cursor/Antigravity) to use the preconfigured Ansible tools.
 4. Configure host vars and cloud-init seed files.
-5. Run the base playbook: `ansible-playbook src/playbooks/pi-base.yml`.
+5. Run the base playbook: `ansible-playbook src/playbooks/pi-base.yml` (or full: `ansible-playbook src/playbooks/pi-full.yml`).
 
 ## Key Docs
 

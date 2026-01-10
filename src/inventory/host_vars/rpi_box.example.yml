@@ -14,6 +14,7 @@ ansible_ssh_private_key_file: >-
 pi_base_admin_user: "{{ lookup('env', 'PI_BASE_ADMIN_USER') }}"
 pi_base_admin_ssh_public_key_file: >-
   {{ lookup('env', 'PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE') }}
+pi_base_allow_passwordless_sudo: "{{ lookup('env', 'PI_BASE_ALLOW_PASSWORDLESS_SUDO') }}"
 pi_base_hostname: "rpi-box-01"
 pi_base_timezone: "Europe/Dublin"
 pi_base_locale: "en_IE.UTF-8"

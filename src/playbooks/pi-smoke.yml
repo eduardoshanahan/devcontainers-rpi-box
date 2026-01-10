@@ -1,0 +1,7 @@
+---
+- name: Run Raspberry Pi smoke checks
+  hosts: raspberry_pi_boxes
+  become: true
+  gather_facts: true
+  roles:
+    - docker_smoke_test

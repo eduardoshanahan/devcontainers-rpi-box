@@ -220,7 +220,7 @@ tmux sessions persist until explicitly killed.
 
 ---
 
-### 4️⃣ Forgetting to rename windows
+### 4. Forgetting to rename windows
 
 **Symptom**:
 
@@ -243,7 +243,7 @@ Examples:
 
 ---
 
-### 5️⃣ Killing tmux sessions accidentally
+### 5. Killing tmux sessions accidentally
 
 **Symptom**:
 
@@ -256,7 +256,7 @@ Examples:
 
 ---
 
-### 6️⃣ Using tmux when it is not needed
+### 6. Using tmux when it is not needed
 
 tmux is great, but not mandatory for:
 

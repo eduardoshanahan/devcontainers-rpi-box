@@ -17,7 +17,7 @@ This living document captures the workflow for operating the Raspberry Pi auto
    - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
    - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
    - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
-   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_DISABLE_RESOLVED_STUB`
+   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_ALLOW_PASSWORDLESS_SUDO`, `PI_BASE_DISABLE_RESOLVED_STUB`
    - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
    - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
    - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
@@ -91,6 +91,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    - `daily_report_user`, `daily_report_script_path`, `daily_report_service_name`, `daily_report_msmtp_log_path`
 5. Required role variables (no defaults; set in `host_vars` or `group_vars`):
    - `pi_base_disable_resolved_stub`, `pi_base_resolv_conf_target`
+   - `pi_base_allow_passwordless_sudo` (set to `true` to create a `NOPASSWD` sudoers drop-in for the admin user)
    - `fail2ban_base_bantime`, `fail2ban_base_findtime`, `fail2ban_base_maxretry`
    - `fail2ban_base_ignoreip`, `fail2ban_base_backend`
    - `time_sync_ntp_servers`, `time_sync_fallback_servers`
@@ -147,10 +148,28 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
 
 2. The play targets the `[raspberry_pi_boxes]` inventory group. Limit to a single host (e.g., `-l rpi_box_01`) if you add more Pis later.
 3. Docker packages are installed from Docker's apt repo. If a transient repo mismatch occurs (for example, a containerd.io candidate is missing), the playbook will fall back to the next available version and you can re-run later to converge.
-4. The `docker_smoke_test` role requires the Docker service running and the
-   Compose V2 plugin (`docker-compose-plugin`) installed. Confirm both before
-   running if you are applying roles individually.
-5. After the base playbook completes, run the verification playbook to confirm
+4. Optional: configure and apply “service” roles that require extra variables (SMTP/restic):
+
+   ```bash
+   cd src
+   ansible-playbook playbooks/pi-services.yml -l rpi_box_01
+   ```
+
+5. Optional: run the Docker smoke test (pulls `traefik/whoami`, requires outbound registry access):
+
+   ```bash
+   cd src
+   ansible-playbook playbooks/pi-smoke.yml -l rpi_box_01
+   ```
+
+6. Optional: run a full apply (base + services + smoke):
+
+   ```bash
+   cd src
+   ansible-playbook playbooks/pi-full.yml -l rpi_box_01
+   ```
+
+7. After the base playbook completes, run the verification playbook to confirm
    services and config files are in place:
 
    ```bash

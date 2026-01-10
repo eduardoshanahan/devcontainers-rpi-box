@@ -3,7 +3,7 @@
   ansible.builtin.apt:
     name: tmux
     state: present
-  tags: [tmux]
+  tags: [tmux_config, tmux]
 
 - name: Configure system-wide tmux defaults
   ansible.builtin.template:
@@ -12,4 +12,4 @@
     owner: root
     group: root
     mode: "0644"
-  tags: [tmux]
+  tags: [tmux_config, tmux]

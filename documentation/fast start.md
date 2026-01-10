@@ -44,7 +44,7 @@ If there are problems, start with the [documentation index](README.md).
 
   ```bash
   cd src
-  ansible-playbook playbooks/pi-base.yml -l rpi_box_01
+  ansible-playbook playbooks/pi-full.yml -l rpi_box_01
   ```
 
 ## Dry-run and review changes (recommended on existing boxes)
@@ -55,7 +55,7 @@ If there are problems, start with the [documentation index](README.md).
 
   ```bash
   cd src
-  ansible-playbook playbooks/pi-base.yml -l rpi_box_01 --check --diff
+  ansible-playbook playbooks/pi-full.yml -l rpi_box_01 --check --diff
   ```
 
 ## Deploy only a subset

@@ -37,6 +37,9 @@
       - pi_base_admin_user | length > 0
       - pi_base_admin_ssh_public_key_file is defined
       - pi_base_admin_ssh_public_key_file | length > 0
+      - pi_base_allow_passwordless_sudo is defined
+      - pi_base_allow_passwordless_sudo | string | length > 0
+      - pi_base_allow_passwordless_sudo | lower in ['true', 'false', '1', '0']
       - pi_base_hostname is defined
       - pi_base_hostname | length > 0
       - pi_base_timezone is defined
@@ -98,7 +101,7 @@
     state: present
   tags: [pi_base, access]
 
-- name: Allow passwordless sudo for admin user
+- name: Allow passwordless sudo for admin user (opt-in)
   ansible.builtin.copy:
     dest: "/etc/sudoers.d/90-{{ pi_base_admin_user }}"
     owner: root
@@ -106,6 +109,14 @@
     mode: "0440"
     validate: "visudo -cf %s"
     content: "{{ pi_base_admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+  when: pi_base_allow_passwordless_sudo | bool
+  tags: [pi_base, access]
+
+- name: Ensure passwordless sudo is not enabled for admin user (opt-out)
+  ansible.builtin.file:
+    path: "/etc/sudoers.d/90-{{ pi_base_admin_user }}"
+    state: absent
+  when: not (pi_base_allow_passwordless_sudo | bool)
   tags: [pi_base, access]
 
 - name: Set system hostname
@@ -139,28 +150,32 @@
     content: "LANG={{ pi_base_locale }}\n"
   tags: [pi_base, identity]
 
-- name: Disable SSH password authentication
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "^#?PasswordAuthentication"
-    line: "PasswordAuthentication no"
+- name: Ensure sshd drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [pi_base, access]
+
+- name: Configure SSH hardening via drop-in (Ubuntu 22.04+)
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/90-pi-base-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      PasswordAuthentication no
+      PermitRootLogin no
+      PubkeyAuthentication yes
   notify: Restart ssh
   tags: [pi_base, access]
 
-- name: Disable SSH root login
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "^#?PermitRootLogin"
-    line: "PermitRootLogin no"
-  notify: Restart ssh
-  tags: [pi_base, access]
-
-- name: Ensure SSH public key auth is enabled
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "^#?PubkeyAuthentication"
-    line: "PubkeyAuthentication yes"
-  notify: Restart ssh
+- name: Validate sshd configuration
+  ansible.builtin.command:
+    cmd: /usr/sbin/sshd -t
+  changed_when: false
   tags: [pi_base, access]
 
 - name: Ensure systemd-resolved drop-in directory exists
