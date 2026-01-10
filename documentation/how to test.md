@@ -47,7 +47,12 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
 - Confirm SSH settings (requires sudo, use `-b`):
 
   ```bash
-  ansible rpi_box_01 -m shell -a "sshd -T | egrep 'passwordauthentication|permitrootlogin|pubkeyauthentication'" -b
+  ansible rpi_box_01 -m shell -a "/usr/sbin/sshd -T | egrep 'passwordauthentication|permitrootlogin|pubkeyauthentication'" -b
+  ```
+
+- Confirm the managed drop-in is present:
+  ```bash
+  ansible rpi_box_01 -m command -a "ls -l /etc/ssh/sshd_config.d/90-pi-base-hardening.conf" -b
   ```
 
 ## Unattended Upgrades

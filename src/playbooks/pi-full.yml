@@ -1,0 +1,4 @@
+---
+- import_playbook: pi-base.yml
+- import_playbook: pi-services.yml
+- import_playbook: pi-smoke.yml

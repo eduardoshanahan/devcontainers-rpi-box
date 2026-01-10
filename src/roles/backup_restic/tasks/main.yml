@@ -16,6 +16,7 @@
     fail_msg: >-
       Define required backup_restic_* variables (repo, src, password, retention,
       timer schedule) before applying this role.
+  tags: [backup_restic]
 
 - name: Install Restic
   ansible.builtin.apt:
@@ -23,6 +24,7 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
+  tags: [backup_restic]
 
 - name: Deploy backup script
   ansible.builtin.template:
@@ -31,6 +33,7 @@
     owner: root
     group: root
     mode: "0700"
+  tags: [backup_restic]
 
 - name: Create backup service unit
   ansible.builtin.copy:
@@ -48,6 +51,7 @@
     group: root
     mode: "0644"
   notify: Reload systemd
+  tags: [backup_restic]
 
 - name: Create backup timer unit
   ansible.builtin.template:
@@ -57,12 +61,15 @@
     group: root
     mode: "0644"
   notify: Reload systemd
+  tags: [backup_restic]
 
 - name: Flush systemd unit changes before enabling timer
   ansible.builtin.meta: flush_handlers
+  tags: [backup_restic]
 
 - name: Enable and start backup timer
   ansible.builtin.systemd:
     name: rpi-backup.timer
     enabled: true
     state: started
+  tags: [backup_restic]
