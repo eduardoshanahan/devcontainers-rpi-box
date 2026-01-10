@@ -12,6 +12,7 @@
 - Testing and smoke checks: [how to test](how%20to%20test.md)
 - Lint-only helper: `scripts/ansible-lint.sh` (documented in [how to test](how%20to%20test.md))
 - tmux quick reference: [tmux quick reference](tmux_quick_reference.md)
+- tmux workspace launcher: [tmux workspace](tmux_workspace.md)
 - Troubleshooting: [troubleshooting](troubleshooting.md)
 - Cleaning devcontainer images: [how to clean devcontainer images](how%20to%20clean%20devcontainer%20images.md)
 - Git sync helper: [how to use sync-git](how%20to%20use%20sync-git.md)

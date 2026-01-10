@@ -9,6 +9,14 @@ If there are problems, start with the [documentation index](README.md).
 - Run commands from the repo root unless noted.
 - `rpi_box_01` is an example host; substitute your target (for example `rpi_box_03`).
 
+## Start the standard tmux workspace
+
+  ```bash
+  make workspace
+  ```
+
+  Run this from the host machine (outside the devcontainer).
+
 ## Quick checks
 
   ```bash

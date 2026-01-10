@@ -9,6 +9,7 @@ This guide covers **everything the team needs** to use tmux effectively on serve
 ## What is tmux?
 
 `tmux` is a **terminal multiplexer**:
+
 - One SSH session → many named tabs (called *windows*)
 - Sessions survive network drops
 - Same behavior everywhere (Pi, VM, laptop)
@@ -22,11 +23,13 @@ tmux
 ```
 
 Attach to an existing session:
+
 ```bash
 tmux attach
 ```
 
 List sessions:
+
 ```bash
 tmux ls
 ```
@@ -46,7 +49,7 @@ Press **Ctrl**, hold it, press **a**, release — then press the command key.
 ## Core Commands (90% of usage)
 
 | Action | Keys |
-|------|------|
+| ------ | ---- |
 | New tab (window) | `Ctrl+a` → `c` |
 | Rename tab | `Ctrl+a` → `r` |
 | Switch to tab | `Ctrl+a` → `1–9` |
@@ -76,6 +79,7 @@ tmux attach
 ## Mouse Support
 
 Mouse is enabled by default:
+
 - Click to switch tabs
 - Scroll history with mouse wheel
 - Resize panes (if used)
@@ -86,12 +90,15 @@ Works locally **and** over SSH.
 
 ## Scrolling Output (no mouse)
 
-1. Enter scroll mode:
+- Enter scroll mode:
+
 ```text
 Ctrl+a → [
 ```
-2. Scroll with arrow keys or PageUp/PageDown
-3. Exit scroll mode:
+
+- Scroll with arrow keys or PageUp/PageDown
+- Exit scroll mode:
+
 ```text
 q
 ```
@@ -101,11 +108,13 @@ q
 ## Session Naming (optional but recommended)
 
 Create a named session:
+
 ```bash
 tmux new -s infra
 ```
 
 Attach to it later:
+
 ```bash
 tmux attach -t infra
 ```
@@ -115,6 +124,7 @@ tmux attach -t infra
 ## When to Use tmux
 
 Use tmux when:
+
 - Running long commands
 - Managing multiple services
 - Working over SSH
@@ -125,6 +135,7 @@ Use tmux when:
 ## When NOT to Use tmux
 
 Probably unnecessary for:
+
 - One-off local commands
 - Short-lived interactive shells
 
@@ -144,6 +155,7 @@ Probably unnecessary for:
 ### 1. Starting tmux *inside* tmux (nested tmux)
 
 **Symptom**:
+
 - Keybindings stop working
 - Prefix key feels inconsistent
 - Confusing status bars
@@ -152,6 +164,7 @@ Probably unnecessary for:
 You ran `tmux` while already inside a tmux session.
 
 **How to avoid**:
+
 - If you already see a tmux status bar, you are *inside tmux*
 - Use **new windows** instead of starting a new tmux
 
@@ -160,7 +173,9 @@ Ctrl+a → c
 ```
 
 **If it already happened**:
+
 - Detach twice:
+
 ```text
 Ctrl+a → d
 Ctrl+a → d
@@ -171,6 +186,7 @@ Ctrl+a → d
 ### 2. Killing the SSH session instead of detaching
 
 **Symptom**:
+
 - All running commands stop
 - Long-running tasks are lost
 
@@ -178,6 +194,7 @@ Ctrl+a → d
 Using `exit`, closing the terminal, or killing SSH **without detaching**.
 
 **Correct way to leave**:
+
 ```text
 Ctrl+a → d
 ```
@@ -189,9 +206,11 @@ This keeps everything running safely on the server.
 ### 3. Closing terminals instead of reattaching
 
 **Symptom**:
+
 - "I lost my work"
 
 **Fix**:
+
 ```bash
 tmux ls
 tmux attach
@@ -204,16 +223,19 @@ tmux sessions persist until explicitly killed.
 ### 4️⃣ Forgetting to rename windows
 
 **Symptom**:
+
 - Many tabs named `bash`
 - Hard to know what is running where
 
 **Best practice**:
 Rename windows immediately:
+
 ```text
 Ctrl+a → r
 ```
 
 Examples:
+
 - `logs`
 - `docker`
 - `ansible`
@@ -224,9 +246,11 @@ Examples:
 ### 5️⃣ Killing tmux sessions accidentally
 
 **Symptom**:
+
 - Everything disappears at once
 
 **Safer approach**:
+
 - Close individual windows instead of the whole session
 - Confirm before killing sessions (already enforced in infra config)
 
@@ -235,6 +259,7 @@ Examples:
 ### 6️⃣ Using tmux when it is not needed
 
 tmux is great, but not mandatory for:
+
 - One-off local commands
 - Short interactive shells
 
@@ -245,16 +270,20 @@ Use it where it adds value: **long-running, multi-task, or SSH work**.
 ## Troubleshooting
 
 ### "I lost my session"
+
 ```bash
 tmux ls
 tmux attach
 ```
 
 ### "My terminal froze"
+
 Try:
+
 ```text
 Ctrl+a → d
 ```
+
 Then reattach.
 
 ---
@@ -281,6 +310,7 @@ tmux rename-session -t old_name new_name
 ```
 
 Example:
+
 ```bash
 tmux rename-session -t 0 infra
 ```
@@ -292,6 +322,7 @@ tmux rename-session -t 0 infra
 Use **purpose-based**, not personal names:
 
 Good examples:
+
 - `infra`
 - `maintenance`
 - `upgrade`
@@ -299,6 +330,7 @@ Good examples:
 - `prod-check`
 
 Avoid:
+
 - Leaving default numeric names
 - Using usernames
 - Mixing unrelated work in one session
