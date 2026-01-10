@@ -218,6 +218,45 @@ If a required environment variable is missing:
 
 - Make the **smallest change necessary**
 - Do NOT refactor unrelated code
+
+---
+
+## 10. Daily Diary + ADRs (REQUIRED)
+
+This repo maintains a daily project journal under `documentation/diary/` (see
+`documentation/adr/ADR-0003-maintain-diary-daily-project-journal.md`).
+
+### Start-of-session checklist
+
+- Read relevant ADRs first (at minimum `documentation/adr/ADR-0003-maintain-diary-daily-project-journal.md`).
+- Read today’s diary files (create if missing):
+  - `documentation/diary/state/YYYY-MM-DD.md`
+  - `documentation/diary/plans/YYYY-MM-DD.md`
+  - `documentation/diary/recaps/YYYY-MM-DD.md`
+
+### When making changes
+
+- If code or documentation changes, update today’s `documentation/diary/` files:
+  - `state/` for current working status + next steps
+  - `plans/` if the plan changes
+  - `recaps/` for progress checkpoints and outcomes
+- `working memory.md` is not the diary; use `documentation/diary/` for the journal.
+
+---
+
+## 11. Bug Report Minimum Info (Ansible)
+
+When reporting or troubleshooting an Ansible failure, capture:
+
+- Command run (including `cd src` if applicable) and the target (`-l`, inventory, host name).
+- Full error output plus the relevant task snippet (role/task file + lines).
+- Target host facts (or equivalent): `ansible_distribution`, `ansible_distribution_release`, `ansible_architecture`.
+
+---
+
+## 12. Project Layout (Quick Reference)
+
+- Ansible project root: `src/` (playbooks and roles live under `src/`).
 - Do NOT rename files, services, or roles unless asked
 - When unsure, ask for clarification
 
@@ -245,13 +284,14 @@ If a required environment variable is missing:
 
 ## 12. Agent Behavior
 
-- At the start of any task, read the ADRs in `documentation/adr/` (at minimum `ADR-0001-record-architecture-decisions.md`) and follow any decisions relevant to the work.
+- At the start of any task, read the ADRs in `documentation/adr/` and follow any decisions relevant to the work.
 - Explain *what* changed and *why*
 - Prefer safety over convenience
+- The objective is to have repeatable deployments, not manual solutions
 - Fail fast and loudly on misconfiguration
 - Never assume production access
 - Never assume internet access on target hosts
 
---- 
+---
 
 ## End of Agent Instructions
