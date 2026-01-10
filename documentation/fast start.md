@@ -59,13 +59,6 @@ If there are problems, start with the [documentation index](README.md).
   ansible-playbook playbooks/pi-base.yml -l rpi_box_01 --tags docker_engine
   ```
 
-  Dry-run (check mode) with diffs:
-
-  ```bash
-  cd src
-  ansible-playbook playbooks/pi-base.yml -l rpi_box_01 --check --diff
-  ```
-
 ## Local lint + idempotency smoke test
 
   This runs `ansible-lint`, `yamllint`, then executes the playbook twice and fails if the second pass reports changes:
@@ -78,4 +71,12 @@ If there are problems, start with the [documentation index](README.md).
 
   ```bash
   ./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini rpi_box_03
+  ```
+
+## Lint only
+
+  Run only `ansible-lint` (no playbook execution):
+
+  ```bash
+  ./scripts/ansible-lint.sh src/playbooks/pi-base.yml
   ```

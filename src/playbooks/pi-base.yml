@@ -14,6 +14,7 @@
     - docker_engine
     - docker_prune
     - common_tools
+    - tmux_config
     - daily_report
     - backup_restic
     - docker_smoke_test
