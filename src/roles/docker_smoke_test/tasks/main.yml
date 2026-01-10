@@ -53,6 +53,7 @@
       community.docker.docker_compose_v2:
         project_src: /srv/docker/smoke-test
         state: present
+        build: never
         wait: true
       changed_when: false
 
