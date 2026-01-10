@@ -1,0 +1,49 @@
+##### Core behavior #####
+
+# Use Ctrl-a instead of Ctrl-b (screen-like, easier on SSH)
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# Faster key response (important over SSH)
+set -sg escape-time 10
+
+# Start window numbering at 1 (human-friendly)
+set -g base-index 1
+setw -g pane-base-index 1
+
+##### Usability #####
+
+# Enable mouse support (safe even on SSH)
+set -g mouse on
+
+# Allow scrolling history
+set -g history-limit 50000
+
+# Rename windows manually only (no auto renaming)
+set -g allow-rename off
+set -g automatic-rename off
+
+# Rename window quickly
+bind r command-prompt -I "#W" "rename-window '%%'"
+
+##### Visuals (very light) #####
+
+# Simple status bar
+set -g status-position bottom
+set -g status-interval 5
+
+set -g status-left "#S "
+set -g status-right "%Y-%m-%d %H:%M"
+
+# Highlight active window
+setw -g window-status-current-style "reverse"
+
+##### Behavior safety #####
+
+# Don't kill windows on logout
+set -g detach-on-destroy off
+
+# Confirm before killing session
+bind X confirm-before -p "Kill session #S? (y/n)" kill-session
+

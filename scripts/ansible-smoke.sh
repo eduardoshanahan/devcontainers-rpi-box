@@ -78,7 +78,29 @@ printf '\n'
 
 if command -v ansible-lint >/dev/null 2>&1; then
     printf '%s\n' ">>> Running ansible-lint on ${PLAYBOOK}"
-    ansible-lint "$PLAYBOOK"
+    lint_stderr_file="$(make_temp_file)"
+    if [ -z "$lint_stderr_file" ]; then
+        printf '%s\n' "Failed to create temp file for ansible-lint stderr." >&2
+        exit 1
+    fi
+
+    lint_rc=0
+    if command -v python3 >/dev/null 2>&1 && python3 -c "import ansiblelint" >/dev/null 2>&1; then
+        python3 -W "ignore::DeprecationWarning" -m ansiblelint "$PLAYBOOK" 2>"$lint_stderr_file" || lint_rc=$?
+    else
+        PYTHONWARNINGS="ignore::DeprecationWarning" ansible-lint "$PLAYBOOK" 2>"$lint_stderr_file" || lint_rc=$?
+    fi
+
+    awk '
+      /DeprecationWarning: GitWildMatchPattern/ { skip_next=1; next }
+      skip_next && /^  / { skip_next=0; next }
+      { skip_next=0; print }
+    ' "$lint_stderr_file" >&2
+    rm -f "$lint_stderr_file"
+
+    if [ "$lint_rc" -ne 0 ]; then
+        exit "$lint_rc"
+    fi
     printf '\n'
 else
     printf '%s\n' "ansible-lint not available; skipping lint step." >&2

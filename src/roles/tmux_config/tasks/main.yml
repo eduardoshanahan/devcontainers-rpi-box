@@ -1,0 +1,15 @@
+---
+- name: Install tmux
+  ansible.builtin.apt:
+    name: tmux
+    state: present
+  tags: [tmux]
+
+- name: Configure system-wide tmux defaults
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: /etc/tmux.conf
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [tmux]
