@@ -11,13 +11,13 @@ When debugging or fixing issues, **NEVER remove existing features** that were in
 #### **1. Temporary Changes Only**
 
 ```yaml
-# ✅ CORRECT - Temporary debugging
+# PASS CORRECT - Temporary debugging
 - name: Debug Docker installation
   ansible.builtin.debug:
     msg: "Testing Docker GPG key"
   when: debug_mode | default(false)
 
-# ❌ WRONG - Removing features
+# FAIL WRONG - Removing features
 - name: Remove Docker security config  # DON'T DO THIS
   ansible.builtin.file:
     path: /etc/docker/daemon.json
@@ -54,7 +54,7 @@ When debugging or fixing issues, **NEVER remove existing features** that were in
 **Step 2: Add Temporary Debugging**
 
 ```yaml
-# ✅ Add debugging without removing features
+# PASS Add debugging without removing features
 - name: Debug Docker GPG key
   ansible.builtin.command: ls -la /etc/apt/keyrings/
   register: debug_gpg
@@ -68,7 +68,7 @@ When debugging or fixing issues, **NEVER remove existing features** that were in
 **Step 3: Fix the Issue**
 
 ```yaml
-# ✅ Fix the issue while preserving all features
+# PASS Fix the issue while preserving all features
 - name: Fix GPG key issue
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
@@ -80,7 +80,7 @@ When debugging or fixing issues, **NEVER remove existing features** that were in
 **Step 4: Verify All Features Still Work**
 
 ```yaml
-# ✅ Test that all features are preserved
+# PASS Test that all features are preserved
 - name: Verify Docker security config
   ansible.builtin.stat:
     path: /etc/docker/daemon.json
@@ -127,7 +127,7 @@ docker_features:
 **Always have a rollback plan:**
 
 ```yaml
-# ✅ Keep backup of working configuration
+# PASS Keep backup of working configuration
 - name: Backup current configuration
   ansible.builtin.copy:
     src: /etc/docker/daemon.json
@@ -135,7 +135,7 @@ docker_features:
     remote_src: true
   when: backup_config | default(true)
 
-# ✅ Restore if needed
+# PASS Restore if needed
 - name: Restore configuration if fix fails
   ansible.builtin.copy:
     src: /etc/docker/daemon.json.backup
@@ -162,7 +162,7 @@ ansible-playbook playbooks/test_networking.yml
 **Document any temporary changes:**
 
 ```yaml
-# ✅ Document temporary debugging
+# PASS Document temporary debugging
 - name: Temporary debugging - REMOVE AFTER FIX
   ansible.builtin.debug:
     msg: "Temporary: Testing Docker repository"
@@ -183,32 +183,32 @@ ansible-playbook playbooks/test_networking.yml
 
 #### **9. Common Anti-Patterns to Avoid**
 
-**❌ DON'T DO THESE:**
+**FAIL DON'T DO THESE:**
 
 ```yaml
-# ❌ Removing security features
+# FAIL Removing security features
 - name: Remove Docker security for debugging
   ansible.builtin.file:
     path: /etc/docker/daemon.json
     state: absent
 
-# ❌ Disabling monitoring
+# FAIL Disabling monitoring
 - name: Disable monitoring temporarily
   ansible.builtin.service:
     name: monitoring
     state: stopped
 
-# ❌ Removing user permissions
+# FAIL Removing user permissions
 - name: Remove user from docker group
   ansible.builtin.user:
     name: "{{ user }}"
     groups: ""
 ```
 
-**✅ DO THESE INSTEAD:**
+**PASS DO THESE INSTEAD:**
 
 ```yaml
-# ✅ Add debugging without removing features
+# PASS Add debugging without removing features
 - name: Debug with verbose logging
   ansible.builtin.apt:
     name: docker-ce
@@ -216,7 +216,7 @@ ansible-playbook playbooks/test_networking.yml
     update_cache: true
   register: docker_install_result
 
-# ✅ Test features after debugging
+# PASS Test features after debugging
 - name: Verify all features still work
   ansible.builtin.command: docker info
   register: docker_test

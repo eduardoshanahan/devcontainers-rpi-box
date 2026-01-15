@@ -105,6 +105,10 @@ sd_card_files/system-boot/ssh
 # Vendored Ansible collections (downloaded via galaxy install)
 src/collections/ansible_collections/
 
+# Local Ansible inventory (keep example tracked)
+src/inventory/hosts.ini
+!src/inventory/hosts.ini.example
+
 # Local Ansible runtime data
 .ansible/
 

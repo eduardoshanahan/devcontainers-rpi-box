@@ -25,6 +25,12 @@ If there are problems, start with the [documentation index](README.md).
   ansible-inventory --graph
   ```
 
+  If `inventory/hosts.ini` does not exist yet, create it from the example:
+
+  ```bash
+  cp inventory/hosts.ini.example inventory/hosts.ini
+  ```
+
 ## Test connectivity from Ansible to the box
 
   ```bash

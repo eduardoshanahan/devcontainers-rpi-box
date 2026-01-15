@@ -11,10 +11,10 @@ When updating or creating documentation, **NEVER overwrite existing files** with
 #### **1. ALWAYS Read Existing Documentation First**
 
 ```bash
-# ✅ CORRECT - Read existing file first
+# PASS CORRECT - Read existing file first
 read_file target_file="path/to/existing/file.md" should_read_entire_file=true
 
-# ❌ WRONG - Don't create new content without reading existing
+# FAIL WRONG - Don't create new content without reading existing
 # Creating new documentation without checking what already exists
 ```
 
@@ -22,7 +22,7 @@ read_file target_file="path/to/existing/file.md" should_read_entire_file=true
 
 **When updating documentation:**
 
-**✅ DO:**
+**PASS DO:**
 
 - Read the entire existing file first
 - Identify valuable information to preserve
@@ -31,7 +31,7 @@ read_file target_file="path/to/existing/file.md" should_read_entire_file=true
 - Preserve all examples, troubleshooting, and technical details
 - Mark new features clearly (e.g., "**NEW**: Feature description")
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Overwrite existing files without reading them
 - Assume new content is better than existing content
@@ -85,7 +85,7 @@ read_file target_file="path/to/existing/file.md" should_read_entire_file=true
 **When adding new features:**
 
 ```markdown
-# ✅ CORRECT - Preserve existing + add new
+# PASS CORRECT - Preserve existing + add new
 
 ## Existing Section (Preserved)
 [Keep all existing content]
@@ -102,11 +102,11 @@ read_file target_file="path/to/existing/file.md" should_read_entire_file=true
 **Before making documentation changes:**
 
 ```bash
-# ✅ CORRECT - Check what exists
+# PASS CORRECT - Check what exists
 git status
 git diff path/to/file.md
 
-# ✅ CORRECT - Read existing content
+# PASS CORRECT - Read existing content
 read_file target_file="path/to/file.md" should_read_entire_file=true
 ```
 

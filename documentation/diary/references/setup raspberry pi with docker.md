@@ -3,8 +3,8 @@
 ## Repository Snapshot
 
 - Devcontainer already bakes in Ansible tooling (`.devcontainer/Dockerfile`, `.devcontainer/devcontainer.json`) and exports `ANSIBLE_CONFIG`/`ANSIBLE_INVENTORY` so anything under `src/` is immediately usable once the container boots.
-- Helper workflow is `.env` ➝ `./editor-launch.sh` ➝ “Reopen in Container”; Ansible lint + smoke testing live in `scripts/ansible-smoke.sh`.
-- Current inventory (`src/inventory/hosts.ini`) only declares the `local` group with `localhost ansible_connection=local`; there are no Raspberry Pi hosts or groups yet.
+- Helper workflow is `.env` -> `./editor-launch.sh` -> “Reopen in Container”; Ansible lint + smoke testing live in `scripts/ansible-smoke.sh`.
+- Inventory: `src/inventory/hosts.ini` is local-only (gitignored); `src/inventory/hosts.ini.example` is the committed template.
 - `src/playbooks/sample.yml` is a placeholder sanity check; no real playbooks exist for imaging or configuring a Pi.
 - `group_vars/all.yml` only pins `ansible_python_interpreter`; there are no variables for Pi credentials, package mirrors, Docker settings, etc.
 - `requirements.yml` already installs `ansible.posix` and `community.general`, so we have the modules needed for apt repositories, user/group tweaks, and service management when we start adding Pi roles.
@@ -29,18 +29,19 @@
 - Do we expect Wi‑Fi setup, static IP, or VLAN tagging? Might belong in `pi_network` role before Docker.
 - What compose workloads are first on the list (Portainer, Home Assistant, custom app)? That influences how we structure data directories and secrets handling.
 
-## Confirmed Direction (Session ✅)
+## Confirmed Direction (Session confirmed)
 
 - **OS + media**: Ubuntu Server **22.04 LTS (64-bit)** will be flashed onto an SD card. Raspberry Pi Imager is the preferred workflow, but any flashing tool is acceptable as long as it yields the two partitions (`system-boot`, `writable`).
-- **Imaging artifacts**: The canonical cloud-init seed lives in `non_comitted_files/system-boot/`. Copy those `meta-data`, `network-config`, `user-data`, and the empty `ssh` flag straight into the freshly-flashed `system-boot` partition before first boot so SSH comes up immediately.
-- **Networking**: Only wired Ethernet (`eth0`) is in scope; Wi-Fi is explicitly out. Static IP `192.168.1.58/24`, gateway `192.168.1.1`, DNS `[192.168.1.1, 1.1.1.1]` per `network-config`.
-- **Access policy**: SSH public key auth only (`ssh_pwauth: false`, `disable_root: true`, user `eduardo` with passwordless sudo). `non_comitted_files/system-boot/user-data` is the single source of truth for the cloud-init stanza.
+- **Imaging artifacts**: Cloud-init seed templates live in `sd_card_files/system-boot/*.example` (the real `sd_card_files/system-boot/{meta-data,network-config,user-data,ssh}` files are gitignored). Copy `meta-data`, `network-config`, `user-data`, and the empty `ssh` flag into the freshly-flashed `system-boot` partition before first boot so SSH comes up immediately.
+- **Networking**: Only wired Ethernet (`eth0`) is in scope; Wi-Fi is explicitly out. Use DHCP in `network-config`, then use UniFi DHCP reservations (MAC → fixed IP) for stable addresses. Advertise Pi-hole DNS via UniFi DHCP; do not configure public fallback DNS (for example `1.1.1.1`) in netplan when internal zones must resolve.
+- **Access policy**: SSH public key auth only (`ssh_pwauth: false`, `disable_root: true`, user `<admin_user>` with passwordless sudo). `sd_card_files/system-boot/user-data` is the single source of truth for the cloud-init stanza.
 - **First boot checklist**:
   1. Flash Ubuntu 22.04 server image to SD.
-  2. Mount the `system-boot` partition and overwrite it with the four files from `non_comitted_files/system-boot`, then `sync`.
+  2. Mount the `system-boot` partition and overwrite it with the four files from `sd_card_files/system-boot`, then `sync`.
   3. Insert SD into the Pi, connect Ethernet, power on, and wait ~60s for cloud-init.
-  4. SSH in with `ssh -i ~/.ssh/eduardo-hhlab eduardo@192.168.1.58`.
-  5. Run `sudo cloud-init status --wait` to confirm initial provisioning completed.
+  4. In UniFi (router), find the DHCP lease for the new box and create a DHCP reservation (MAC -> fixed IP) so the address becomes stable.
+  5. SSH in with `ssh -i ~/.ssh/<ssh_key_name> <admin_user>@<reserved-ip>`.
+  6. Run `sudo cloud-init status --wait` to confirm initial provisioning completed.
 - **Post-image automation**: Once the Pi is reachable, everything else (OS updates, hardening, Docker install) must be handled through Ansible roles/playbooks in this repo so downstream projects inherit a reliable base.
 
 ## Automating SD Flashing With Ansible
@@ -50,7 +51,7 @@
   1. Prompts for confirmation after showing `lsblk` details for the target block device so we don’t clobber the wrong disk.
   2. Downloads `ubuntu-22.04.5-preinstalled-server-arm64+raspi.img.xz` into `~/.cache/rpi-box/` (override via `work_dir` if needed). Pass `-e ubuntu_image_sha256=<sha256>` to enforce checksum validation once we pull it from Canonical’s release page.
   3. Decompresses the image (requires `xz-utils` on the host) and uses `dd bs=4M conv=fsync status=progress` to flash it to `sd_card_device`.
-  4. Re-reads the partition table, mounts the first partition (`system-boot`), and copies `non_comitted_files/system-boot/{meta-data,network-config,user-data,ssh}` so SSH and the static IP come online immediately.
+  4. Re-reads the partition table, mounts the first partition (`system-boot`), and copies `sd_card_files/system-boot/{meta-data,network-config,user-data,ssh}` so SSH comes online immediately and the host acquires a DHCP lease.
   5. Unmounts `system-boot`, runs `sync`, and prints a success message so the card can be ejected/inserted into the Pi.
 - Usage example (run from repo root so the relative `seed_source_dir` resolves):
 
@@ -67,7 +68,7 @@ Replace `/dev/sdX` with the removable device reported by `lsblk` (e.g., `/dev/sd
 - **Docker channel**: Use the official Docker CE apt repository (Arm64 supported) to ensure the most recent stable `docker-ce`, `docker-ce-cli`, `containerd.io`, `docker-buildx-plugin`, and `docker-compose-plugin`. Avoid Ubuntu’s `docker.io` to keep pace with upstream fixes.
 - **Compose CLI**: With the plugin installed, `docker compose version` must report the bundled Compose V2 binary; symlink `/usr/local/bin/docker-compose` only if some tooling still expects the legacy command.
 - **Kernel / cgroup prep**: Ubuntu 22.04 already ships with cgroup v2 enabled. Document (and codify) any `/boot/firmware/cmdline.txt` tweaks should we discover resource issues once workloads like Pi-hole are deployed.
-- **User + groups**: Ensure the `eduardo` account (and any future automation user) is part of the `docker` group. Consider `group_vars/pi_docker.yml` to list additional users so future apps inherit the same treatment.
+- **User + groups**: Ensure the `<admin_user>` account (and any future automation user) is part of the `docker` group. Consider `group_vars/pi_docker.yml` to list additional users so future apps inherit the same treatment.
 - **Directories**: Standardize on `/srv/docker/<app>` for compose stacks. Provision `pi-base` role variables such as `docker_data_root: /srv/docker` and create the directory with `0750` permissions owned by `root:docker` to keep secrets on disk under control.
 - **Validation tasks**:
   - `docker version` and `docker info` with `changed_when: false` to assert the daemon responds.
@@ -83,7 +84,7 @@ Replace `/dev/sdX` with the removable device reported by `lsblk` (e.g., `/dev/sd
 
 ## Sensitive Data Handling
 
-- Host-specific variables (IPs, SSH usernames, initial passwords, etc.) belong in `host_vars/<hostname>.yml`. Keep secrets out of git by mirroring `host_vars` inside `non_comitted_files/` or use `ansible-vault` if you must check them in. Document which path you used so future sessions know where to source credentials.
+- Host-specific variables (IPs, SSH usernames, initial passwords, etc.) belong in `host_vars/<hostname>.yml`. Keep secrets out of git (local-only files or `ansible-vault`) and document where the source of truth lives.
 
 ## Immediate Next Steps
 

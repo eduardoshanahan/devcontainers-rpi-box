@@ -8,7 +8,7 @@ When handling potential failures in Ansible tasks, **NEVER use `ignore_errors: t
 
 ### **Rule: Replace ignore_errors with failed_when**
 
-**❌ WRONG - Don't do this:**
+**FAIL WRONG - Don't do this:**
 
 ```yaml
 - name: Test configuration
@@ -16,7 +16,7 @@ When handling potential failures in Ansible tasks, **NEVER use `ignore_errors: t
   ignore_errors: true
 ```
 
-**✅ CORRECT - Do this instead:**
+**PASS CORRECT - Do this instead:**
 
 ```yaml
 - name: Test configuration

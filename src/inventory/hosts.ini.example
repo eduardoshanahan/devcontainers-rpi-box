@@ -1,0 +1,5 @@
+[local]
+localhost ansible_connection=local
+
+[raspberry_pi_boxes]
+rpi_box_01

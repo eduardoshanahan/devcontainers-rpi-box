@@ -8,12 +8,12 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 
 **Essential Requirements:**
 
-- ✅ Use `set -eo pipefail` for commands with pipes
-- ✅ Keep lines under 160 characters
-- ✅ Add `changed_when: false` for read-only operations
-- ✅ Add `failed_when: false` for commands that may legitimately fail
-- ✅ Quote all variables: `"{{ variable }}"`
-- ✅ Provide fallback values: `|| echo "default"`
+- PASS Use `set -eo pipefail` for commands with pipes
+- PASS Keep lines under 160 characters
+- PASS Add `changed_when: false` for read-only operations
+- PASS Add `failed_when: false` for commands that may legitimately fail
+- PASS Quote all variables: `"{{ variable }}"`
+- PASS Provide fallback values: `|| echo "default"`
 
 ## Detailed Guidelines
 
@@ -22,13 +22,13 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 **Always use `set -eo pipefail` for shell commands that use pipes:**
 
 ```yaml
-# ❌ WRONG - Missing pipefail
+# FAIL WRONG - Missing pipefail
 - name: Parse fail2ban statistics
   ansible.builtin.shell: |
     set -e
     current_banned=$(fail2ban-client status sshd | grep "Currently banned" | awk '{print $4}')
 
-# ✅ CORRECT - With pipefail
+# PASS CORRECT - With pipefail
 - name: Parse fail2ban statistics
   ansible.builtin.shell: |
     set -eo pipefail
@@ -46,12 +46,12 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 **Keep lines under 160 characters. Use YAML folded scalars and line continuations:**
 
 ```yaml
-# ❌ WRONG - Line too long
+# FAIL WRONG - Line too long
 - name: Display status
   ansible.builtin.debug:
     msg: "Service status: {{ ansible_facts.services['service.name'].state if 'service.name' in ansible_facts.services else 'Not found' }}"
 
-# ✅ CORRECT - Using folded scalar
+# PASS CORRECT - Using folded scalar
 - name: Display status
   ansible.builtin.debug:
     msg: >-
@@ -61,7 +61,7 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
         else 'Not found'
       }}
 
-# ✅ ALSO CORRECT - Shell command with line continuation
+# PASS ALSO CORRECT - Shell command with line continuation
 - name: Process data with long pipeline
   ansible.builtin.shell: |
     set -eo pipefail
@@ -140,14 +140,14 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 **Protect against injection and handle sensitive data:**
 
 ```yaml
-# ✅ CORRECT - Proper variable quoting
+# PASS CORRECT - Proper variable quoting
 - name: Process user input safely
   ansible.builtin.shell: |
     set -eo pipefail
     result=$(grep "{{ user_input | quote }}" /var/log/app.log || echo "not found")
     echo "result=${result}"
 
-# ✅ CORRECT - Handle sensitive data
+# PASS CORRECT - Handle sensitive data
 - name: Check database connection
   ansible.builtin.shell: |
     set -eo pipefail
@@ -168,7 +168,7 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 **Safe variable usage patterns:**
 
 ```yaml
-# ✅ CORRECT - With fallbacks and proper quoting
+# PASS CORRECT - With fallbacks and proper quoting
 - name: Parse configuration value
   ansible.builtin.shell: |
     set -eo pipefail
@@ -195,21 +195,21 @@ When using `ansible.builtin.shell` module, always follow shell best practices in
 ### 8. Common Anti-Patterns to Avoid
 
 ```yaml
-# ❌ ANTI-PATTERN 1: No error handling
+# FAIL ANTI-PATTERN 1: No error handling
 - name: Bad example
   ansible.builtin.shell: command1 | command2
 
-# ❌ ANTI-PATTERN 2: Unquoted variables
+# FAIL ANTI-PATTERN 2: Unquoted variables
 - name: Bad example
   ansible.builtin.shell: grep {{ user_input }} /var/log/app.log
 
-# ❌ ANTI-PATTERN 3: No fallback values
+# FAIL ANTI-PATTERN 3: No fallback values
 - name: Bad example
   ansible.builtin.shell: |
     result=$(command_that_might_fail)
     echo $result
 
-# ❌ ANTI-PATTERN 4: Mixing shell and Ansible logic
+# FAIL ANTI-PATTERN 4: Mixing shell and Ansible logic
 - name: Bad example
   ansible.builtin.shell: |
     if [ "{{ ansible_os_family }}" = "RedHat" ]; then

@@ -8,7 +8,7 @@ When claiming compliance with any established rules, **NEVER assume compliance**
 
 ### **NEVER Claim Compliance Without Verification**
 
-**❌ WRONG - Don't do this:**
+**FAIL WRONG - Don't do this:**
 
 ```text
 "I've reviewed the files and they comply with the rules"
@@ -16,7 +16,7 @@ When claiming compliance with any established rules, **NEVER assume compliance**
 "The files are compliant with the formatting rules"
 ```
 
-**✅ CORRECT - Do this instead:**
+**PASS CORRECT - Do this instead:**
 
 ```text
 "I've systematically verified each rule using the following methods:"
@@ -29,7 +29,7 @@ When claiming compliance with any established rules, **NEVER assume compliance**
 ### **Step 1: Read the Complete Rule File**
 
 ```bash
-# ✅ CORRECT - Read the entire rule file first
+# PASS CORRECT - Read the entire rule file first
 read_file target_file=".cursor/rules/rule-name.md" should_read_entire_file=true
 ```
 
@@ -42,11 +42,11 @@ read_file target_file=".cursor/rules/rule-name.md" should_read_entire_file=true
 ### **Step 3: Use Systematic Verification Methods**
 
 ```bash
-# ✅ CORRECT - Use grep for pattern validation
+# PASS CORRECT - Use grep for pattern validation
 grep_search query="^## " include_pattern="target-files/**/*.md"
 grep_search query="^- " include_pattern="target-files/**/*.md"
 
-# ✅ CORRECT - Read files completely for validation
+# PASS CORRECT - Read files completely for validation
 read_file target_file="file.md" should_read_entire_file=true
 ```
 
@@ -68,13 +68,13 @@ read_file target_file="file.md" should_read_entire_file=true
 
 ### **1. Confirmation Bias**
 
-**❌ WRONG:**
+**FAIL WRONG:**
 
 - Looking for evidence that confirms compliance
 - Ignoring potential violations
 - Focusing only on positive indicators
 
-**✅ CORRECT:**
+**PASS CORRECT:**
 
 - Actively searching for violations
 - Using systematic verification methods
@@ -82,13 +82,13 @@ read_file target_file="file.md" should_read_entire_file=true
 
 ### **2. Assumption-Based Analysis**
 
-**❌ WRONG:**
+**FAIL WRONG:**
 
 - Assuming rules are followed based on general quality
 - Relying on "looks good" assessments
 - Using pattern matching without verification
 
-**✅ CORRECT:**
+**PASS CORRECT:**
 
 - Explicitly checking each rule requirement
 - Using specific validation tools
@@ -96,13 +96,13 @@ read_file target_file="file.md" should_read_entire_file=true
 
 ### **3. Surface-Level Review**
 
-**❌ WRONG:**
+**FAIL WRONG:**
 
 - Quick visual assessment
 - Focusing on content quality over formatting
 - Missing specific rule violations
 
-**✅ CORRECT:**
+**PASS CORRECT:**
 
 - Detailed line-by-line analysis
 - Using grep and search tools
@@ -122,7 +122,7 @@ grep_search query="^- " include_pattern="**/*.md"
 grep_search query="^[0-9]+\. " include_pattern="**/*.md"
 
 # Check for emojis
-grep_search query="[🚀✅❌🔧📝]" include_pattern="**/*.md"
+grep_search query="PASS|FAIL" include_pattern="**/*.md"
 ```
 
 ### **Ansible Rules**
@@ -205,7 +205,7 @@ grep_search query="TODO.*REMOVE" include_pattern="**/*.md"
 The files look good and follow the established standards.
 They appear to be compliant with the formatting rules.
 
-**Result: COMPLIANT**  # ❌ WRONG - No verification shown
+**Result: COMPLIANT**  # FAIL WRONG - No verification shown
 ```
 
 ## Summary

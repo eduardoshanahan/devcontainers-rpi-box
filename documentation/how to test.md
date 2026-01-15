@@ -25,6 +25,7 @@ This document lists lightweight validation checks for the Raspberry Pi base setu
 - Run the smoke tests against all Raspberry Pi hosts:
 
   ```bash
+  cp src/inventory/hosts.ini.example src/inventory/hosts.ini
   ./scripts/ansible-smoke.sh src/playbooks/pi-base.yml src/inventory/hosts.ini
   ```
 

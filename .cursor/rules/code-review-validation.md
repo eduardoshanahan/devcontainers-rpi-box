@@ -156,20 +156,20 @@ python3 -c "from jinja2 import Template; Template(open('template.j2').read())"
 ### Common Mistakes to Avoid
 
 1. **Partial File Reading**
-   - ❌ Only reading first 50 lines
-   - ✅ Read entire files for validation
+   - FAIL Only reading first 50 lines
+   - PASS Read entire files for validation
 
 2. **Size Ignorance**
-   - ❌ Not checking file sizes
-   - ✅ Compare file sizes with similar files
+   - FAIL Not checking file sizes
+   - PASS Compare file sizes with similar files
 
 3. **Content Assumption**
-   - ❌ Assuming content is correct based on structure
-   - ✅ Verify actual content matches purpose
+   - FAIL Assuming content is correct based on structure
+   - PASS Verify actual content matches purpose
 
 4. **Cross-Reference Skipping**
-   - ❌ Not comparing similar files
-   - ✅ Always cross-reference for consistency
+   - FAIL Not comparing similar files
+   - PASS Always cross-reference for consistency
 
 ## Implementation
 

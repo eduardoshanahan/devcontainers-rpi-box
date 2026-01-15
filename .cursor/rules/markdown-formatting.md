@@ -67,11 +67,11 @@ This rule ensures all markdown files follow consistent formatting standards and 
 ## Emojis and Special Characters
 
 - **No emojis in markdown content** (MD041 rule)
-  - Avoid using emoji characters (🚀, ✅, ❌, etc.)
+  - Avoid using emoji characters (for example PASS/FAIL icons)
   - Use text-based alternatives instead
   - Examples:
-    - Instead of ✅, use "✓" or "PASS"
-    - Instead of ❌, use "✗" or "FAIL"
+    - Instead of PASS, use "PASS"
+    - Instead of FAIL, use "FAIL"
     - Instead of , use "DEPLOY" or "LAUNCH"
     - Instead of , use "FIX" or "CONFIGURE"
 - Use standard ASCII characters when possible

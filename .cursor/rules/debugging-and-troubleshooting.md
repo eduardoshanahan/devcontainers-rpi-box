@@ -6,14 +6,14 @@
 
 **When Ansible automation fails but manual fixes work:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Document the manual fix** that worked
 - **Analyze why Ansible failed** (timing, permissions, edge cases)
 - **Update Ansible code** to handle the specific failure mode
 - **Add fallback mechanisms** for persistent issues
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Ignore the difference between manual and automated approaches
 - Assume Ansible will always work the same as manual commands
@@ -40,14 +40,14 @@ sudo apt-get update
 
 **When the same error keeps occurring:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Identify the root cause** (not just the symptom)
 - **Check multiple locations** where the issue might be cached
 - **Use multiple cleanup methods** (files, cache, keyring)
 - **Add comprehensive logging** to track what's happening
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Keep trying the same approach that failed
 - Assume the error is "fixed" after one cleanup attempt
@@ -73,14 +73,14 @@ sudo apt-get update
 
 **Always have multiple approaches:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Try direct installation first** (bypass problematic steps)
 - **Have manual fallback methods** (shell commands)
 - **Use `failed_when: false`** instead of `ignore_errors`
 - **Register results** to check what actually worked
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Rely on a single installation method
 - Use `ignore_errors` without proper handling
@@ -107,14 +107,14 @@ sudo apt-get update
 
 **Ubuntu/Docker specific patterns:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Check for existing installations** before adding new ones
 - **Handle different Ubuntu versions** (old vs new keyring methods)
 - **Clear all possible cache locations**
 - **Use explicit key verification** in repository configs
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Assume all systems are clean
 - Ignore version-specific differences
@@ -139,13 +139,13 @@ sudo apt-get update
 
 **When debugging persistent issues:**
 
-1. **✅ Identify the exact error pattern**
+1. **PASS Identify the exact error pattern**
 
    ```text
    NO_PUBKEY 7EA0A9C3F273FCD8
    ```
 
-2. **✅ Find what manual fix works**
+2. **PASS Find what manual fix works**
 
    ```bash
    sudo apt-key del 7EA0A9C3F273FCD8
@@ -153,18 +153,18 @@ sudo apt-get update
    sudo apt-get update
    ```
 
-3. **✅ Analyze why Ansible failed**
+3. **PASS Analyze why Ansible failed**
    - Different timing
    - Permission issues
    - Caching problems
    - Edge cases
 
-4. **✅ Update Ansible code with multiple approaches**
+4. **PASS Update Ansible code with multiple approaches**
    - Direct installation
    - Manual fallback
    - Comprehensive cleanup
 
-5. **✅ Test thoroughly**
+5. **PASS Test thoroughly**
    - Verify all features still work
    - Test on different systems
    - Document the solution
@@ -173,14 +173,14 @@ sudo apt-get update
 
 **Maintain code quality even when debugging:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Fix linter errors** even during debugging
 - **Use proper Ansible modules** instead of shell commands
 - **Add proper error handling** with `failed_when` and `changed_when`
 - **Document temporary changes** clearly
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Ignore linter warnings
 - Use shell commands when modules exist
@@ -189,13 +189,13 @@ sudo apt-get update
 **Example:**
 
 ```yaml
-# ✅ Good - Proper error handling
+# PASS Good - Proper error handling
 - name: Remove problematic key
   ansible.builtin.command: apt-key del {{ item }}
   failed_when: false
   changed_when: false
 
-# ❌ Bad - Ignoring errors
+# FAIL Bad - Ignoring errors
 - name: Remove problematic key
   ansible.builtin.command: apt-key del {{ item }}
   ignore_errors: true
@@ -205,7 +205,7 @@ sudo apt-get update
 
 **Always document what worked:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Document the manual fix** that resolved the issue
 - **Explain why the original approach failed**
@@ -230,14 +230,14 @@ sudo apt-get update
 
 **Always verify the fix works:**
 
-**✅ DO:**
+**PASS DO:**
 
 - **Test the deployment** after fixes
 - **Verify all features** still work
 - **Test on different systems** if possible
 - **Document the successful approach**
 
-**❌ DON'T:**
+**FAIL DON'T:**
 
 - Assume the fix works without testing
 - Skip verification steps

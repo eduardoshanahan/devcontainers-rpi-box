@@ -37,6 +37,14 @@ socket is forwarded.
 
 ### Configure Raspberry Pi credentials
 
+### 2.0 Create local inventory from the example
+
+1. Copy the example inventory file and keep the real one out of git:
+
+   ```bash
+   cp src/inventory/hosts.ini.example src/inventory/hosts.ini
+   ```
+
 ### 2.1 Create the cloud-init seed files
 
 1. Copy the example files into the real cloud-init seed paths (keep them out of git):
@@ -49,7 +57,9 @@ socket is forwarded.
    ```
 
 2. Edit `sd_card_files/system-boot/meta-data` with the desired hostname and instance id.
-3. Edit `sd_card_files/system-boot/network-config` with the correct static IP and DNS.
+3. Edit `sd_card_files/system-boot/network-config` to use DHCP (no static IP and no public fallback DNS).
+   - Use UniFi DHCP reservations (MAC → fixed IP) for stable addresses.
+   - Set the client DNS servers via UniFi DHCP (for example Pi-hole primary/secondary), not in netplan.
 4. Edit `sd_card_files/system-boot/user-data` with the correct user name and SSH key.
 5. Ensure `sd_card_files/system-boot/ssh` is an empty file (this enables SSH on first boot).
 
@@ -68,6 +78,7 @@ socket is forwarded.
    ```
 
 4. Eject the SD card safely, insert it into the Pi, and boot. SSH should be ready after the first boot.
+5. After the box boots and pulls a DHCP lease, create a DHCP reservation in UniFi (router) so the IP becomes stable (MAC -> fixed IP). Use that reserved IP in inventory (`ansible_host`).
 
 ### 2.3 Configure inventory host vars
 
