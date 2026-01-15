@@ -20,18 +20,21 @@ info() {
 }
 
 PROJECT_DIR="$(CDPATH= cd "$(dirname "$0")/.." && pwd)"
-ENV_FILE="$PROJECT_DIR/.env"
+ENV_LOADER="$PROJECT_DIR/.devcontainer/scripts/env-loader.sh"
 
-if [ ! -f "$ENV_FILE" ]; then
-  error "Cannot find .env at $ENV_FILE"
+if [ ! -f "$ENV_LOADER" ]; then
+  error "Cannot find env-loader at $ENV_LOADER"
   exit 1
 fi
 
-# Load environment variables from the project root .env
-set -a
 # shellcheck disable=SC1090
-. "$ENV_FILE"
-set +a
+. "$ENV_LOADER"
+load_project_env "$PROJECT_DIR"
+
+if ! sh "$PROJECT_DIR/scripts/validate-env.sh" >/dev/null; then
+  error "Environment validation failed. Please fix your .env values."
+  exit 1
+fi
 
 if ! command -v docker >/dev/null 2>&1; then
   error "Docker is not installed!"
@@ -42,18 +45,17 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ -z "${DEVCONTAINER_IMAGE_RETENTION_DAYS:-}" ]; then
+RETENTION_DAYS="${DEVCONTAINER_IMAGE_RETENTION_DAYS:-}"
+if [ -z "$RETENTION_DAYS" ]; then
   error "DEVCONTAINER_IMAGE_RETENTION_DAYS must be set in .env."
   exit 1
 fi
-
-RETENTION_DAYS="${DEVCONTAINER_IMAGE_RETENTION_DAYS}"
 case "$RETENTION_DAYS" in
   ''|*[!0-9]*)
     error "DEVCONTAINER_IMAGE_RETENTION_DAYS must be a positive integer (days)."
     exit 1
     ;;
-esac
+  esac
 if [ "$RETENTION_DAYS" -le 0 ]; then
   error "DEVCONTAINER_IMAGE_RETENTION_DAYS must be greater than zero."
   exit 1

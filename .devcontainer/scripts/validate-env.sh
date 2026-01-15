@@ -76,7 +76,20 @@ while IFS='|' read -r var description pattern; do
 done <<'EOF'
 GIT_REMOTE_URL|Git remote URL|^(https://|git@).+
 CLAUDE_INSTALL_SHA256|Claude Code installer checksum|^[A-Fa-f0-9]{64}$
-WORKSPACE_ALLOW_IN_CONTAINER|Allow workspace.sh inside container (not recommended)|^(0|1|true|false)$
+KEEP_CONTAINER|Keep devcontainer containers after exit|^(true|false)$
+KEEP_CONTAINER_EDITOR|Keep editor-started container after exit|^(true|false)$
+KEEP_CONTAINER_DEVCONTAINER|Keep devcontainer CLI container after exit|^(true|false)$
+KEEP_CONTAINER_CLAUDE|Keep Claude container after exit|^(true|false)$
+INSTALL_CLAUDE|Install Claude CLI during devcontainer build|^(true|false)$
+FORCE_REBUILD|Force devcontainer image rebuild in launchers|^(true|false)$
+FORCE_PULL|Force sync-git pull over local changes|^(true|false)$
+WORKSPACE_ALLOW_IN_CONTAINER|Allow workspace.sh inside container (not recommended)|^(true|false)$
+ENV_LOADER_DEBUG|Env loader debug output|^(true|false)$
+ENV_LOADER_DEBUG_VALUES|Env loader debug values output|^(true|false)$
+CONTAINER_HOSTNAME_EDITOR|Editor container hostname|^[a-zA-Z][a-zA-Z0-9-]*$
+CONTAINER_HOSTNAME_DEVCONTAINER|CLI container hostname|^[a-zA-Z][a-zA-Z0-9-]*$
+CONTAINER_HOSTNAME_CLAUDE|Claude container hostname|^[a-zA-Z][a-zA-Z0-9-]*$
+DEVCONTAINER_CONTEXT|Prompt context label|^[a-zA-Z0-9][a-zA-Z0-9-]*$
 EOF
 
 printf '\nValidating SSH agent forwarding...\n'

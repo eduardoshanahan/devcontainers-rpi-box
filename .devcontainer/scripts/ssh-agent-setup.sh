@@ -2,10 +2,10 @@
 # --- SSH Agent Setup ---
 
 # Avoid running multiple times in the same shell.
-if [ "${SSH_AGENT_SETUP_DONE:-0}" = "1" ]; then
+if ${SSH_AGENT_SETUP_DONE:-false}; then
   return 0 2>/dev/null || exit 0
 fi
-export SSH_AGENT_SETUP_DONE=1
+export SSH_AGENT_SETUP_DONE=true
 
 # Exit on error and undefined vars.
 # Preserve shell opts because this script is sourced from interactive shells.

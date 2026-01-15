@@ -1,9 +1,17 @@
 #!/bin/sh
 set -eu
 
+if [ -z "${WORKSPACE_FOLDER:-}" ]; then
+    printf '%s\n' "Error: WORKSPACE_FOLDER is not set." >&2
+    printf '%s\n' "Hint: start the devcontainer via ./devcontainer-launch.sh or ./editor-launch.sh." >&2
+    exit 1
+fi
+
+workspace_dir="$WORKSPACE_FOLDER"
+
 # Prefer workspace colors, then HOME; fallback to minimal colors
-if [ -f "/workspace/.devcontainer/scripts/colors.sh" ]; then
-    . "/workspace/.devcontainer/scripts/colors.sh"
+if [ -f "${workspace_dir}/.devcontainer/scripts/colors.sh" ]; then
+    . "${workspace_dir}/.devcontainer/scripts/colors.sh"
 elif [ -f "$HOME/.devcontainer/scripts/colors.sh" ]; then
     . "$HOME/.devcontainer/scripts/colors.sh"
 else
@@ -16,11 +24,11 @@ fi
 
 # Load environment variables via shared loader (project root .env is authoritative)
 loader_found=false
-for loader in "/workspace/.devcontainer/scripts/env-loader.sh" "$HOME/.devcontainer/scripts/env-loader.sh"; do
+for loader in "${workspace_dir}/.devcontainer/scripts/env-loader.sh" "$HOME/.devcontainer/scripts/env-loader.sh"; do
     if [ -f "$loader" ]; then
         # shellcheck disable=SC1090
         . "$loader"
-        load_project_env "/workspace"
+        load_project_env "$workspace_dir"
         loader_found=true
         break
     fi
@@ -32,7 +40,7 @@ fi
 
 # Configure Git if variables are set
 if [ -n "${GIT_USER_NAME:-}" ] && [ -n "${GIT_USER_EMAIL:-}" ]; then
-    REPO_DIR="/workspace"
+    REPO_DIR="$workspace_dir"
     if [ -d "$REPO_DIR/.git" ]; then
         printf '%b\n' "${GREEN}Configuring Git (repo-local) with:${COLOR_RESET}"
         printf '%b\n' "  ${COLOR_BOLD}Name:${COLOR_RESET}  $GIT_USER_NAME"
@@ -45,21 +53,21 @@ if [ -n "${GIT_USER_NAME:-}" ] && [ -n "${GIT_USER_EMAIL:-}" ]; then
 fi
 
 # Make scripts executable (existing entries)
-chmod +x /workspace/.devcontainer/scripts/bash-prompt.sh 2>/dev/null || true
-chmod +x /workspace/.devcontainer/scripts/ssh-agent-setup.sh 2>/dev/null || true
+chmod +x "${workspace_dir}/.devcontainer/scripts/bash-prompt.sh" 2>/dev/null || true
+chmod +x "${workspace_dir}/.devcontainer/scripts/ssh-agent-setup.sh" 2>/dev/null || true
 
 # Ensure helper scripts are executable
-chmod +x /workspace/.devcontainer/scripts/verify-git-ssh.sh 2>/dev/null || true
-chmod +x /workspace/.devcontainer/scripts/env-loader.sh 2>/dev/null || true
-chmod +x /workspace/.devcontainer/scripts/fix-permissions.sh 2>/dev/null || true
+chmod +x "${workspace_dir}/.devcontainer/scripts/verify-git-ssh.sh" 2>/dev/null || true
+chmod +x "${workspace_dir}/.devcontainer/scripts/env-loader.sh" 2>/dev/null || true
+chmod +x "${workspace_dir}/.devcontainer/scripts/fix-permissions.sh" 2>/dev/null || true
 
 # Ensure bashrc sources helper scripts (avoid duplicates)
-if ! grep -qF "source /workspace/.devcontainer/scripts/bash-prompt.sh" ~/.bashrc 2>/dev/null; then
-    echo 'source /workspace/.devcontainer/scripts/bash-prompt.sh' >> ~/.bashrc
+if ! grep -qF "${workspace_dir}/.devcontainer/scripts/bash-prompt.sh" "$HOME/.bashrc" 2>/dev/null; then
+    printf '%s\n' ". ${workspace_dir}/.devcontainer/scripts/bash-prompt.sh" >> "$HOME/.bashrc"
 fi
 
-if ! grep -qF "source /workspace/.devcontainer/scripts/ssh-agent-setup.sh" ~/.bashrc 2>/dev/null; then
-    echo 'source /workspace/.devcontainer/scripts/ssh-agent-setup.sh' >> ~/.bashrc
+if ! grep -qF "${workspace_dir}/.devcontainer/scripts/ssh-agent-setup.sh" "$HOME/.bashrc" 2>/dev/null; then
+    printf '%s\n' ". ${workspace_dir}/.devcontainer/scripts/ssh-agent-setup.sh" >> "$HOME/.bashrc"
 fi
 
 printf '%b\n' "${GREEN}Initialization complete.${COLOR_RESET}"

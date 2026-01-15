@@ -1,4 +1,9 @@
 ---
-- import_playbook: pi-base.yml
-- import_playbook: pi-services.yml
-- import_playbook: pi-smoke.yml
+- name: Import base playbook
+  import_playbook: pi-base.yml
+
+- name: Import services playbook
+  import_playbook: pi-services.yml
+
+- name: Import smoke tests playbook
+  import_playbook: pi-smoke.yml

@@ -36,6 +36,12 @@ fi
 . "$ENV_LOADER"
 load_project_env "$PROJECT_DIR"
 
+# Launcher defaults (editor context)
+export DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-${PROJECT_NAME}-editor}"
+export CONTAINER_HOSTNAME_EDITOR="${CONTAINER_HOSTNAME_EDITOR:-${DOCKER_IMAGE_NAME}}"
+export CONTAINER_HOSTNAME="${CONTAINER_HOSTNAME_EDITOR}"
+export DEVCONTAINER_CONTEXT="${DEVCONTAINER_CONTEXT:-editor}"
+
 # Validate environment variables before launching anything
 VALIDATOR="$PROJECT_DIR/.devcontainer/scripts/validate-env.sh"
 if [ -f "$VALIDATOR" ]; then
@@ -56,7 +62,6 @@ export GIT_USER_NAME
 export GIT_USER_EMAIL
 export GIT_REMOTE_URL
 export EDITOR_CHOICE
-export DOCKER_IMAGE_NAME
 export DOCKER_IMAGE_TAG
 
 # Validate editor choice

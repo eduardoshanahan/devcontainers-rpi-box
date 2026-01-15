@@ -1,17 +1,17 @@
 #!/bin/sh
 # Shared env loader: load project-root .env (authoritative)
 # Usage:
-#   # from inside container: . /workspace/.devcontainer/scripts/env-loader.sh && load_project_env /workspace [debug]
+#   # from inside container: . "${WORKSPACE_FOLDER}/.devcontainer/scripts/env-loader.sh" && load_project_env "${WORKSPACE_FOLDER}" [debug]
 #   # from host script: . "$PROJECT_DIR/.devcontainer/scripts/env-loader.sh" && load_project_env "$PROJECT_DIR" [debug]
 #
 # Debug mode:
-#   - Set ENV_LOADER_DEBUG=1 (exported) or pass second param as 1 to load_project_env to print newly loaded var names.
-#   - Set ENV_LOADER_DEBUG_VALUES=1 (exported) or pass third param as 1 to print var values too (may expose secrets).
+#   - Set ENV_LOADER_DEBUG=true (exported) or pass second param as true to load_project_env to print newly loaded var names.
+#   - Set ENV_LOADER_DEBUG_VALUES=true (exported) or pass third param as true to print var values too (may expose secrets).
 
 load_project_env() {
     workspace_dir="${1:-${WORKSPACE_FOLDER:-}}"
-    debug="${2:-${ENV_LOADER_DEBUG:-0}}"
-    debug_values="${3:-${ENV_LOADER_DEBUG_VALUES:-0}}"
+    debug="${2:-${ENV_LOADER_DEBUG:-false}}"
+    debug_values="${3:-${ENV_LOADER_DEBUG_VALUES:-false}}"
 
     if [ -z "$workspace_dir" ]; then
         printf 'env-loader: workspace directory not provided; pass as arg or set WORKSPACE_FOLDER\n' >&2
@@ -74,12 +74,29 @@ load_project_env() {
     fi
     env | cut -d= -f1 | sort > "$after_file"
 
-    if [ "$debug" = "1" ] || [ "$debug" = "true" ]; then
+    case "$debug" in
+        true|false) ;;
+        *)
+            printf 'env-loader: ENV_LOADER_DEBUG must be true or false (got: %s)\n' "$debug" >&2
+            rm -f "$before_file" "$after_file" 2>/dev/null || true
+            return 1
+            ;;
+    esac
+    case "$debug_values" in
+        true|false) ;;
+        *)
+            printf 'env-loader: ENV_LOADER_DEBUG_VALUES must be true or false (got: %s)\n' "$debug_values" >&2
+            rm -f "$before_file" "$after_file" 2>/dev/null || true
+            return 1
+            ;;
+    esac
+
+    if $debug; then
         printf 'env-loader: debug enabled - listing variables added by load_project_env (workspace: %s)\n' "$workspace_dir"
         if command -v comm >/dev/null 2>&1; then
             comm -13 "$before_file" "$after_file" | while IFS= read -r var; do
                 [ -z "$var" ] && continue
-                if [ "$debug_values" = "1" ] || [ "$debug_values" = "true" ]; then
+                if $debug_values; then
                     eval "var_value=\${$var-}"
                     printf '%s=%s\n' "$var" "$var_value"
                 else

@@ -1,44 +1,41 @@
-# How to Use This Project
+# How to use this project
 
-This living document captures the workflow for operating the Raspberry Pi automation repo. Update it whenever new capabilities (Docker setup, application roles, etc.) land so future you can reproduce the steps quickly.
+## Overview
 
-## 0. Configure the Devcontainer Environment
+This living document captures the workflow for operating the Raspberry Pi automation repo. Update it whenever new capabilities (Docker setup, application roles, etc.) land so future you can reproduce the steps quickly.
 
-1. Copy the root `.env.example` to `.env` so the devcontainer picks up the required environment variables:
+## Quick start
+
+1. Copy `.env.example` to `.env`:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Edit `.env` and set your host username/UID/GID plus the Ansible-related paths:
+2. Edit `.env` and set the required values (host user/UID/GID, locale, Git identity, editor choice, resource limits, and Ansible vars like `ANSIBLE_USER` / `ANSIBLE_SSH_PRIVATE_KEY_FILE`).
 
-   - `ANSIBLE_CONFIG=/workspace/src/ansible.cfg`
-   - `ANSIBLE_INVENTORY=/workspace/src/inventory/hosts.ini`
-   - `ANSIBLE_COLLECTIONS_PATH=/workspace/src/collections:/home/<your-username>/.ansible/collections`
-   - `ANSIBLE_ROLES_PATH=/workspace/src/roles`
-   - `ANSIBLE_USER`, `ANSIBLE_SSH_PRIVATE_KEY_FILE`
-   - `PI_BASE_ADMIN_USER`, `PI_BASE_ADMIN_SSH_PUBLIC_KEY_FILE`, `PI_BASE_ALLOW_PASSWORDLESS_SUDO`, `PI_BASE_DISABLE_RESOLVED_STUB`
-   - `DAILY_REPORT_EMAIL`, `DAILY_REPORT_SENDER`, `DAILY_REPORT_SMTP_HOST`, `DAILY_REPORT_SMTP_PORT`
-   - `DAILY_REPORT_SMTP_USER`, `DAILY_REPORT_SMTP_PASSWORD`, `DAILY_REPORT_USER`
-   - `BACKUP_RESTIC_REPO`, `BACKUP_RESTIC_SRC`, `BACKUP_RESTIC_PASSWORD`
-   - `BACKUP_RESTIC_RETENTION_DAYS`, `BACKUP_RESTIC_RETENTION_WEEKS`, `BACKUP_RESTIC_RETENTION_MONTHS`
-   - `BACKUP_RESTIC_TIMER_SCHEDULE`
+## Launchers
 
-The devcontainer loads these variables from `.env`, so keeping them here makes the configuration obvious and versioned via `.env.example`.
+- `./editor-launch.sh` for VS Code/Cursor/Antigravity.
+- `./devcontainer-launch.sh` for a CLI shell.
+- `./claude-launch.sh` to start Claude Code inside the container.
+- `./workspace.sh` to open a tmux workspace on the host (optional).
 
-## 1. Prerequisites
+## SSH agent forwarding
 
-- Run inside the provided devcontainer (or any shell with the repo checked out) so Ansible tooling and environment variables are pre-configured.
-- Launch options:
-  - `./editor-launch.sh` for VS Code/Cursor/Antigravity.
-  - `./devcontainer-launch.sh` for a CLI shell.
-  - `./claude-launch.sh` to start Claude Code inside the container.
-- Ensure the SSH key that can reach the Pi is accessible on the host; the devcontainer forwards your host SSH agent so keys never need to be copied into the repo.
-  - To rebuild the container from the launcher, use `REBUILD_CONTAINER=1` (e.g., `REBUILD_CONTAINER=1 ./claude-launch.sh`).
-  - To keep the container running after exit, use `KEEP_CONTAINER=1`.
-  - To skip Claude install, set `SKIP_CLAUDE_INSTALL=1` before launching (Claude install runs in post-create).
+The devcontainer bind-mounts `SSH_AUTH_SOCK`, so the host must have a running
+SSH agent before the container starts. Keys stay on the host; only the agent
+socket is forwarded.
 
-## 2. Configure Raspberry Pi Credentials
+## Common scripts
+
+- Validate config: `./scripts/validate-env.sh [editor|devcontainer|claude]`
+- Clean old devcontainer images: `./scripts/clean-devcontainer-images.sh`
+- Sync git remotes (optional): `./scripts/sync-git.sh`
+
+## Project-specific workflow
+
+### Configure Raspberry Pi credentials
 
 ### 2.1 Create the cloud-init seed files
 
@@ -117,7 +114,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
      - `BACKUP_RESTIC_TIMER_SCHEDULE` / `backup_restic_timer_schedule`
    - Ensure the backup destination is mounted and writable before running the playbook.
 
-## 3. Verify Ansible Connectivity
+### Verify Ansible connectivity
 
 1. From the devcontainer (or any shell with Ansible installed), run:
 
@@ -135,7 +132,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    or rotating keys, update `~/.ssh/known_hosts` on the control machine or set
    `ANSIBLE_HOST_KEY_CHECKING=False` for that session.
 
-## 4. Update the Raspberry Pi Base OS
+### Update the Raspberry Pi base OS
 
 1. Run the base playbook to refresh the apt cache, upgrade all packages, enable
    fail2ban + time sync + log hygiene + node exporter, prepare `/srv`, and
@@ -177,7 +174,7 @@ The devcontainer loads these variables from `.env`, so keeping them here makes t
    ansible-playbook playbooks/deployment-verify.yml -l rpi_box_01
    ```
 
-## 5. Upgrade to the latest Ubuntu LTS (manual playbook)
+### Upgrade to the latest Ubuntu LTS (manual playbook)
 
 1. The daily report email includes an "LTS Upgrade Check" line that mirrors `do-release-upgrade -c`. When it shows a new release, run the manual upgrade playbook:
 

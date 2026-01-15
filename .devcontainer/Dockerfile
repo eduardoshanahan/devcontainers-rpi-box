@@ -1,6 +1,9 @@
 # Use the official Ubuntu 22.04 image as a base
 FROM ubuntu:22.04
 
+ARG INSTALL_CLAUDE
+ARG CLAUDE_INSTALL_SHA256
+
 # Install basic dependencies + Ansible toolchain prerequisites
 ARG LOCALE
 ARG ANSIBLE_CORE_VERSION
@@ -42,6 +45,33 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
 # Install Starship
 RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
+# Install Claude Code CLI (optional; controlled by build arg)
+RUN install_claude="${INSTALL_CLAUDE:-false}" \
+    && case "$install_claude" in true|false) ;; *) echo "INSTALL_CLAUDE must be true or false (current: ${INSTALL_CLAUDE})" >&2; exit 1 ;; esac \
+    && if [ "$install_claude" = "true" ]; then \
+      echo "Installing Claude Code CLI..."; \
+      install_url="https://claude.ai/install.sh"; \
+      install_tmp="/tmp/claude-install.sh"; \
+      curl -fsSL "$install_url" -o "$install_tmp"; \
+      if [ -n "${CLAUDE_INSTALL_SHA256:-}" ]; then \
+        echo "${CLAUDE_INSTALL_SHA256}  ${install_tmp}" | sha256sum -c -; \
+      fi; \
+      bash "$install_tmp"; \
+      if [ -x "/root/.local/bin/claude" ]; then \
+        install -m 0755 "/root/.local/bin/claude" /usr/local/bin/claude; \
+      else \
+        claude_path="$(command -v claude 2>/dev/null || true)"; \
+        if [ -n "$claude_path" ] && [ -x "$claude_path" ]; then \
+          install -m 0755 "$claude_path" /usr/local/bin/claude; \
+        else \
+          echo "Warning: Claude installer ran but 'claude' was not found in PATH or /root/.local/bin."; \
+        fi; \
+      fi; \
+      rm -f "$install_tmp"; \
+    else \
+      echo "Skipping Claude Code CLI install (INSTALL_CLAUDE!=true)."; \
+    fi
+
 # Set the working directory
 WORKDIR /workspace
 
@@ -61,13 +91,17 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN chsh -s /bin/bash $USERNAME
 
 # Ensure prompt setup is sourced in interactive shells
-RUN printf '\n# Devcontainer prompt\nif [ -f /workspace/.devcontainer/scripts/bash-prompt.sh ]; then\n  . /workspace/.devcontainer/scripts/bash-prompt.sh\nfi\n' >> /etc/bash.bashrc
+RUN printf '\n# Devcontainer prompt\n_dev_ws="${WORKSPACE_FOLDER:-}"\nif [ -z "${_dev_ws}" ]; then\n  echo "Warning: WORKSPACE_FOLDER is not set; prompt setup is disabled (start via ./devcontainer-launch.sh or ./editor-launch.sh)."\nelif [ -f "${_dev_ws}/.devcontainer/scripts/bash-prompt.sh" ]; then\n  . "${_dev_ws}/.devcontainer/scripts/bash-prompt.sh"\nfi\nunset _dev_ws\n' >> /etc/bash.bashrc
 
 # Ensure login shells also source the prompt setup
 RUN printf '%s\n' '#!/bin/sh' \
-    'if [ -f /workspace/.devcontainer/scripts/bash-prompt.sh ]; then' \
-    '  . /workspace/.devcontainer/scripts/bash-prompt.sh' \
+    '_dev_ws="${WORKSPACE_FOLDER:-}"' \
+    'if [ -z "${_dev_ws}" ]; then' \
+    '  echo "Warning: WORKSPACE_FOLDER is not set; prompt setup is disabled (start via ./devcontainer-launch.sh or ./editor-launch.sh)."' \
+    'elif [ -f "${_dev_ws}/.devcontainer/scripts/bash-prompt.sh" ]; then' \
+    '  . "${_dev_ws}/.devcontainer/scripts/bash-prompt.sh"' \
     'fi' \
+    'unset _dev_ws' \
     > /etc/profile.d/devcontainer-prompt.sh \
     && chmod 0644 /etc/profile.d/devcontainer-prompt.sh
 

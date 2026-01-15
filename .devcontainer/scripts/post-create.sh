@@ -1,21 +1,29 @@
 #!/bin/sh
 set -eu
 
+if [ -z "${WORKSPACE_FOLDER:-}" ]; then
+    printf '%s\n' "Error: WORKSPACE_FOLDER is not set." >&2
+    printf '%s\n' "Hint: start the devcontainer via ./devcontainer-launch.sh or ./editor-launch.sh." >&2
+    exit 1
+fi
+
+workspace_dir="$WORKSPACE_FOLDER"
+
 # Load environment variables via shared loader (project root .env is authoritative)
-if [ -f "/workspace/.devcontainer/scripts/env-loader.sh" ]; then
+if [ -f "${workspace_dir}/.devcontainer/scripts/env-loader.sh" ]; then
     # shellcheck disable=SC1090
-    . "/workspace/.devcontainer/scripts/env-loader.sh"
-    load_project_env "/workspace"
+    . "${workspace_dir}/.devcontainer/scripts/env-loader.sh"
+    load_project_env "$workspace_dir"
 elif [ -f "$HOME/.devcontainer/scripts/env-loader.sh" ]; then
     # shellcheck disable=SC1090
     . "$HOME/.devcontainer/scripts/env-loader.sh"
-    load_project_env "/workspace"
+    load_project_env "$workspace_dir"
 else
     echo "Warning: env-loader.sh not found; skipping environment load"
 fi
 
 # Validate environment (including SSH agent forwarding).
-VALIDATOR="/workspace/.devcontainer/scripts/validate-env.sh"
+VALIDATOR="${workspace_dir}/.devcontainer/scripts/validate-env.sh"
 if [ -f "$VALIDATOR" ]; then
     echo "Validating environment variables..."
     if ! sh "$VALIDATOR"; then
@@ -29,7 +37,7 @@ fi
 
 # Configure Git if variables are set
 if [ -n "${GIT_USER_NAME:-}" ] && [ -n "${GIT_USER_EMAIL:-}" ]; then
-    REPO_DIR="/workspace"
+    REPO_DIR="$workspace_dir"
     if [ -d "$REPO_DIR/.git" ]; then
         echo "Configuring repo-local Git identity:"
         echo "  Name:  $GIT_USER_NAME"
@@ -45,15 +53,15 @@ fi
 
 # Add workspace to Git safe directories
 echo "Configuring Git safe directories..."
-git config --global --add safe.directory /workspace
+git config --global --add safe.directory "$workspace_dir"
 git config --global --add safe.directory /home/${USERNAME}/.devcontainer
 
 # Make scripts executable
-chmod +x /workspace/.devcontainer/scripts/bash-prompt.sh
-chmod +x /workspace/.devcontainer/scripts/ssh-agent-setup.sh
+chmod +x "${workspace_dir}/.devcontainer/scripts/bash-prompt.sh"
+chmod +x "${workspace_dir}/.devcontainer/scripts/ssh-agent-setup.sh"
 
 # Bootstrap Ansible workspace (collections/roles + Galaxy requirements)
-ANSIBLE_ROOT="/workspace/src"
+ANSIBLE_ROOT="${workspace_dir}/src"
 ANSIBLE_REQUIREMENTS_FILE="${ANSIBLE_ROOT}/requirements.yml"
 
 retry_galaxy_install() {
@@ -86,19 +94,19 @@ else
 fi
 
 # Ensure helper fixer is executable and run it to set permissions for helper scripts
-if [ -f "/workspace/.devcontainer/scripts/fix-permissions.sh" ]; then
-    chmod +x "/workspace/.devcontainer/scripts/fix-permissions.sh" 2>/dev/null || true
+if [ -f "${workspace_dir}/.devcontainer/scripts/fix-permissions.sh" ]; then
+    chmod +x "${workspace_dir}/.devcontainer/scripts/fix-permissions.sh" 2>/dev/null || true
     # Run fixer (non-fatal)
-    "/workspace/.devcontainer/scripts/fix-permissions.sh" "/workspace/.devcontainer/scripts" || true
+    "${workspace_dir}/.devcontainer/scripts/fix-permissions.sh" "${workspace_dir}/.devcontainer/scripts" || true
 fi
 
 # Source scripts in bashrc if not already present
-if ! grep -q "source.*bash-prompt.sh" ~/.bashrc; then
-    echo 'source /workspace/.devcontainer/scripts/bash-prompt.sh' >> ~/.bashrc
+if ! grep -q "source.*bash-prompt.sh" "$HOME/.bashrc"; then
+    printf '%s\n' ". ${workspace_dir}/.devcontainer/scripts/bash-prompt.sh" >> "$HOME/.bashrc"
 fi
 
-if ! grep -q "source.*ssh-agent-setup.sh" ~/.bashrc; then
-    echo 'source /workspace/.devcontainer/scripts/ssh-agent-setup.sh' >> ~/.bashrc
+if ! grep -q "source.*ssh-agent-setup.sh" "$HOME/.bashrc"; then
+    printf '%s\n' ". ${workspace_dir}/.devcontainer/scripts/ssh-agent-setup.sh" >> "$HOME/.bashrc"
 fi
 
 # Ensure VS Code shell integration variable is set early to avoid nounset errors.
@@ -120,88 +128,6 @@ EOF
 }
 
 ensure_bashrc_guard
-
-# Add Claude Code to PATH if not already present
-if ! grep -q '.local/bin' ~/.bashrc; then
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-    echo "Added ~/.local/bin to PATH in .bashrc"
-fi
-
-# Install Claude Code (optional)
-echo "Installing Claude Code..."
-# Always export PATH for this session
-export PATH="$HOME/.local/bin:$PATH"
-
-install_failed=0
-if [ "${SKIP_CLAUDE_INSTALL:-}" = "1" ] || [ "${SKIP_CLAUDE_INSTALL:-}" = "true" ]; then
-    echo "Skipping Claude Code install (SKIP_CLAUDE_INSTALL is set)"
-elif ! command -v claude >/dev/null 2>&1; then
-    if ! command -v bash >/dev/null 2>&1; then
-        echo "Warning: bash is not available; skipping Claude Code install."
-        install_failed=1
-    else
-        INSTALL_URL="https://claude.ai/install.sh"
-        INSTALL_TMP="$(mktemp)"
-        verify_sha256() {
-            expected="$1"
-            file="$2"
-            if command -v sha256sum >/dev/null 2>&1; then
-                echo "${expected}  ${file}" | sha256sum -c - >/dev/null 2>&1
-            elif command -v shasum >/dev/null 2>&1; then
-                echo "${expected}  ${file}" | shasum -a 256 -c - >/dev/null 2>&1
-            else
-                echo "Warning: sha256sum/shasum not found; skipping checksum verification."
-                return 0
-            fi
-        }
-
-        if command -v timeout >/dev/null 2>&1; then
-            timeout 300s curl -fsSL "$INSTALL_URL" -o "$INSTALL_TMP" || {
-                echo "Claude Code download timed out or failed; re-run post-create to try again."
-                rm -f "$INSTALL_TMP"
-                install_failed=1
-            }
-        else
-            curl -fsSL "$INSTALL_URL" -o "$INSTALL_TMP" || {
-                echo "Claude Code download failed; re-run post-create to try again."
-                rm -f "$INSTALL_TMP"
-                install_failed=1
-            }
-        fi
-
-        if [ "$install_failed" -eq 0 ]; then
-            if [ -n "${CLAUDE_INSTALL_SHA256:-}" ]; then
-                if verify_sha256 "$CLAUDE_INSTALL_SHA256" "$INSTALL_TMP"; then
-                    echo "Claude Code installer checksum verified."
-                else
-                    echo "Claude Code installer checksum verification failed."
-                    rm -f "$INSTALL_TMP"
-                    install_failed=1
-                fi
-            else
-                echo "Warning: CLAUDE_INSTALL_SHA256 not set; skipping checksum verification."
-            fi
-        fi
-
-        if [ "$install_failed" -eq 0 ]; then
-            bash "$INSTALL_TMP" || {
-                echo "Claude Code install failed; re-run post-create to try again."
-                install_failed=1
-            }
-        fi
-
-        rm -f "$INSTALL_TMP"
-        if [ "$install_failed" -eq 0 ] && command -v claude >/dev/null 2>&1; then
-            echo "Claude Code installed successfully!"
-        fi
-    fi
-else
-    echo "Claude Code already installed ($(claude --version 2>/dev/null || echo 'version unknown'))"
-fi
-
-if [ "$install_failed" -ne 0 ]; then
-    echo "Warning: Claude Code install failed; continuing without it."
-fi
 
 # Ensure login shells also inherit the alias setup by sourcing .bashrc
 ensure_profile_sources_bashrc() {
